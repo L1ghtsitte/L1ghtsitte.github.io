@@ -1,4 +1,3 @@
-/* Основные стили */
 :root {
     --blood-red: #8a0303;
     --dark-red: #5e0000;
@@ -84,7 +83,6 @@ body {
     z-index: 2;
 }
 
-/* Кровавые капли */
 .blood-drop {
     position: fixed;
     width: 150px;
@@ -97,7 +95,6 @@ body {
     animation: bloodPulse 5s infinite;
 }
 
-/* Пентаграмма */
 .pentagram {
     position: fixed;
     top: 50%;
@@ -218,7 +215,6 @@ body {
     box-shadow: 0 0 10px var(--blood-red);
 }
 
-/* Карточка профиля */
 .profile-section {
     margin: 40px 0;
 }
@@ -340,7 +336,6 @@ body {
     }
 }
 
-/* Секции */
 .section-title {
     font-family: 'Cinzel Decorative', cursive;
     font-size: 2rem;
@@ -382,7 +377,6 @@ body {
     border-radius: 10px;
 }
 
-/* Карточки интересов */
 .interest-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -430,7 +424,6 @@ body {
     color: var(--blood-red);
 }
 
-/* Социальные ссылки */
 .links-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -472,7 +465,6 @@ body {
     text-align: center;
 }
 
-/* Карусель цитат */
 .quote-carousel {
     background: rgba(10, 10, 10, 0.8);
     border: 1px solid var(--blood-red);
@@ -515,7 +507,6 @@ body {
     }
 }
 
-/* Подвал */
 .footer {
     text-align: center;
     padding: 20px 0 40px;
@@ -529,7 +520,6 @@ body {
     margin-top: 10px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .title {
         font-size: 2.5rem;
@@ -548,7 +538,6 @@ body {
     }
 }
 
-/* Эффекты при наведении и нажатии */
 .hover-effect:hover {
     cursor: pointer;
     transform: scale(1.02);
