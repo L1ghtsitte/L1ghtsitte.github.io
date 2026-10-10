@@ -12,7 +12,7 @@
 /* URL бэкенда для уведомлений об оплате.
    GitHub Pages не поддерживает переменные окружения, поэтому
    это просто константа — поменяй домен на свой перед деплоем. */
-const NOTIFY_API_URL = "https://api.mydomain.com/api/crypto-notify"; // путь совпадает с эндпоинтом из api/server.js
+const NOTIFY_API_URL = "https://donati77.mooo.com/api/crypto-notify"; // путь совпадает с эндпоинтом из api/server.js
 
 /* Путь к данным с адресами. Файл лежит в папке /crypto рядом с index.html.
    ВНИМАНИЕ: в репозитории файл называется "adresses.json" (без буквы s),
