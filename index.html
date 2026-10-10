@@ -2,15 +2,22 @@
 <html lang="ru">
 <head>
   <!-- ============================================================
-       CRYPTO PULSE — «AURUM VAULT» · премиальный крипто-терминал
+       CRYPTO PULSE — «NEON GRID» · крипто-донат-терминал
+       Чистый HTML5 + CSS3 + Vanilla JS (GitHub Pages-ready)
+
+       ВАЖНО (CSP): страница запрещает inline-скрипты и inline-стили.
+       Поэтому в разметке НЕТ ни одного on*-обработчика, style="" или
+       <script>...</script>. Всё поведение — во внешних script.js/style.css.
+       Ошибки вида "content.js: Evaluating a string as JavaScript..."
+       вызывает стороннее браузерное расширение, а не этот сайт.
        ============================================================ -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Защита от eval-инъекций (расширения, сторонний код).
-       Разрешены: свои файлы, шрифты Google, картинки data:/blob:, подключение к API. -->
+  <!-- Защита от eval-инъекций: свои файлы + шрифты Google + картинки data:/blob: + API https -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https:; form-action 'none'; base-uri 'self'; object-src 'none'">
-  <meta name="description" data-i18n-attr="content:html.description" content="Crypto Pulse — приём крипто-донатов в 80+ сетях. Быстро, анонимно, без посредников.">
+  <meta name="description" data-i18n-attr="content:html.description"
+        content="Crypto Pulse — приём крипто-донатов в 30+ сетях. Быстро, анонимно, без посредников.">
   <title data-i18n="html.title">CRYPTO PULSE // Донат-терминал</title>
 
   <!-- Шрифты: Sora — заголовки, JetBrains Mono — адреса/код, Manrope — текст -->
@@ -23,7 +30,8 @@
 <body>
 
   <!-- ============================================================
-       ФОНОВЫЕ ЭЛЕМЕНТЫ (аврора, сетка, зерно, частицы, орбы)
+       ФОНОВЫЕ ЭЛЕМЕНТЫ: аврора (cyan/indigo/violet), сетка, орбы,
+       плёночное зерно, парящие частицы — чистый CSS, без JS
        ============================================================ -->
   <div class="bg-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="bg-grid" aria-hidden="true"></div>
@@ -34,14 +42,14 @@
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
 
-  <!-- Тонкий градиентный прогресс скролла поверх шапки -->
+  <!-- Тонкая градиентная полоса прогресса скролла -->
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
   <!-- ============================================================
        ШАПКА (sticky, glass)
        ============================================================ -->
   <header class="site-header">
-    <a class="logo" href="#top" aria-label="Crypto Pulse — наверх">
+    <a class="logo" href="#top" aria-label="Crypto Pulse — наверх" data-i18n-attr="aria-label:html.logoAria">
       <span class="logo__mark" aria-hidden="true">
         <svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M16 2.5 27.5 9v14L16 29.5 4.5 23V9Z"></path>
@@ -60,7 +68,7 @@
     </nav>
 
     <!-- Переключатель языка: 🇷🇺 RU / 🇺🇸 EN / 🇨🇳 中 / 🇯🇵 日 / 🇪🇸 ES / 🇩🇪 DE -->
-    <div class="lang-switch" id="langSwitch" role="group" aria-label="Язык интерфейса">
+    <div class="lang-switch" id="langSwitch" role="group" aria-label="Язык интерфейса" data-i18n-attr="aria-label:html.langAria">
       <button class="lang-btn is-active" type="button" data-lang="ru" title="Русский" aria-label="Русский" aria-pressed="true">🇷🇺<span>RU</span></button>
       <button class="lang-btn" type="button" data-lang="en" title="English" aria-label="English" aria-pressed="false">🇺🇸<span>EN</span></button>
       <button class="lang-btn" type="button" data-lang="zh" title="中文" aria-label="中文" aria-pressed="false">🇨🇳<span>中</span></button>
@@ -78,13 +86,13 @@
 
     <!-- ==========================================================
          HERO — крупная типографика, живой счётчик, статус-бар
-    ========================================================== -->
+         ========================================================== -->
     <section class="hero reveal">
       <p class="hero__kicker"><span class="hero__kicker-line" aria-hidden="true"></span><span data-i18n="html.heroTag">// DONATION TERMINAL v2.0</span></p>
 
       <h1 class="hero__title">
         <span class="hero__line" data-i18n="html.heroTitleLine1">Поддержи</span>
-        <span class="hero__line hero__line--gold" data-i18n="html.heroTitleLine2">будущее</span>
+        <span class="hero__line hero__line--neon" data-i18n="html.heroTitleLine2">будущее</span>
       </h1>
 
       <p class="hero__subtitle">
@@ -111,7 +119,7 @@
       </div>
 
       <div class="hero__cta-row">
-        <a class="btn btn--gold" href="#networks"><span data-i18n="html.ctaNetworks">Выбрать сеть</span><span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--neon" href="#networks"><span data-i18n="html.ctaNetworks">Выбрать сеть</span><span class="btn__arrow" aria-hidden="true">→</span></a>
         <a class="btn btn--ghost" href="#how"><span data-i18n="html.ctaHow">Как это работает</span></a>
       </div>
 
@@ -126,15 +134,15 @@
     </section>
 
     <!-- ==========================================================
-         HOW — три шага (новая секция)
-     ========================================================== -->
+         HOW — три шага
+         ========================================================== -->
     <section id="how" class="section how">
       <h2 class="section__title"><span class="hash">#</span><span data-i18n="html.sectionHow">КАК ЭТО РАБОТАЕТ</span></h2>
       <div class="how__grid">
         <article class="how__step reveal">
           <span class="how__num" aria-hidden="true">01</span>
           <h3 class="how__title" data-i18n="html.howStep1Title">Выбери сеть</h3>
-          <p class="how__text" data-i18n="html.howStep1Text">80+ блокчейнов: BTC, EVM-сети, L1, privacy и meme — фильтры и поиск помогут найти нужную.</p>
+          <p class="how__text" data-i18n="html.howStep1Text">Десятки блокчейнов: BTC, EVM-сети, L1, privacy и meme — фильтры и поиск помогут найти нужную.</p>
         </article>
         <article class="how__step reveal">
           <span class="how__num" aria-hidden="true">02</span>
@@ -151,7 +159,8 @@
 
     <!-- ==========================================================
          СЕКЦИЯ «СЕТИ» — поиск + чипы + dropdown + карусель
-     ========================================================== -->
+         Данные: fetch('crypto/addresses.json') при загрузке
+         ========================================================== -->
     <section id="networks" class="section networks" aria-labelledby="sectionNetworksTitle">
       <h2 class="section__title"><span class="hash">#</span><span id="sectionNetworksTitle" data-i18n="html.sectionNetworks">ВЫБЕРИ СЕТЬ</span></h2>
 
@@ -208,7 +217,7 @@
             </article>
           </template>
 
-          <!-- Скелетоны на время загрузки -->
+          <!-- Скелетоны на время загрузки (их удалит JS после получения данных) -->
           <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
           <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
           <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
@@ -223,7 +232,7 @@
 
     <!-- ==========================================================
          СЕКЦИЯ «ОПЛАТА» — QR, адрес, копирование, форма уведомления
-     ========================================================== -->
+         ========================================================== -->
     <section id="payment" class="section payment" aria-live="polite">
       <h2 class="section__title"><span class="hash">#</span><span data-i18n="html.sectionPayment">РЕКВИЗИТЫ</span></h2>
 
@@ -276,7 +285,8 @@
 
             <hr class="divider" aria-hidden="true">
 
-            <!-- Форма уведомления бэкенда об оплате -->
+            <!-- Форма уведомления бэкенда об оплате:
+                 POST { network, amount, comment, address } на NOTIFY_API_URL -->
             <form id="notifyForm" class="notify-form" novalidate>
               <div class="notify-form__row">
                 <div class="field">
@@ -307,7 +317,7 @@
        ============================================================ -->
   <footer id="footer" class="site-footer">
     <p class="site-footer__brand">CRYPTO<span>PULSE</span></p>
-    <p data-i18n="html.footerMain">CRYPTO PULSE &copy; <span id="year"></span> — сделано во имя децентрализации.</p>
+    <p data-i18n="html.footerMain">CRYPTO PULSE © {year} — сделано во имя децентрализации.</p>
     <p class="site-footer__hint" data-i18n="html.footerHint">Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы.</p>
   </footer>
 
@@ -319,7 +329,7 @@
     <div class="modal__panel">
       <div class="modal__head">
         <p class="modal__title" id="qrModalTitle"></p>
-        <button class="modal__close" id="qrModalClose" type="button" aria-label="Закрыть">&times;</button>
+        <button class="modal__close" id="qrModalClose" type="button" aria-label="Закрыть" data-i18n-attr="aria-label:html.modalCloseAria">&times;</button>
       </div>
       <img class="modal__qr" id="qrModalImg" src="" alt="QR-код для перевода" data-i18n-attr="alt:html.qrAltPrefix">
       <button class="btn btn--ghost modal__copy" id="qrModalCopy" type="button">

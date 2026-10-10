@@ -3,21 +3,26 @@
    Порядок: i18n-модуль → конфиг → утилиты → загрузка JSON →
             рендер карточек → dropdown → поиск → выбор сети →
             копирование → отправка формы → toast → тема → init
+
+   CSP-safe: никаких eval/new Function, никаких inline-стилей
+   через element.style.* и document.body.style — только классы,
+   setAttribute и служебные CSS custom properties.
    ============================================================ */
 
 "use strict";
 
 /* ============================================================
    I18N — единый модуль локализации (namespace window.i18n)
-   - словари locales/<lang>.json, fallback — en;
-   - язык: localStorage("cp-lang") > navigator.language > "en";
+   - словари locales/<lang>.json, fallback — ru;
+   - язык: localStorage("cp-lang") > navigator.language > "ru"
+     (в разметке по умолчанию — русский);
    - перевод статичной разметки через data-i18n / data-i18n-attr;
    - динамический контент строится через i18n.t(key, vars);
    - подписка на смену языка: i18n.onChange(fn) — UI перерисовывается.
    ============================================================ */
 const i18n = (() => {
   const LANGS = ["ru", "en", "zh", "ja", "es", "de"]; // первый — язык по умолчанию в разметке
-  const FALLBACK = "en";
+  const FALLBACK = "ru";
   const STORAGE_KEY = "cp-lang";
   const INTL = { ru: "ru-RU", en: "en-US", zh: "zh-CN", ja: "ja-JP", es: "es-ES", de: "de-DE" };
   const NAMES = { ru: "Русский", en: "English", zh: "中文", ja: "日本語", es: "Español", de: "Deutsch" };
@@ -28,1059 +33,888 @@ const i18n = (() => {
   const listeners = new Set();   // подписчики смены языка
 
   /* Плоский доступ к ключу "toast.copied" + подстановка {плейсхолдеров} */
-  function t(key, vars) {
-    const val = key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), dict);
-    let str = typeof val === "string" ? val : key;
-    if (vars) for (const [k, v] of Object.entries(vars)) str = str.replaceAll(`{${k}}`, String(v));
-    return str;
+  function lookup(obj, dotted, vars) {
+    let cur = obj;
+    for (const p of String(dotted).split(".")) {
+      if (cur && typeof cur === "object" && p in cur) cur = cur[p];
+      else return null;
+    }
+    if (typeof cur !== "string") return null;
+    if (!vars) return cur;
+    return cur.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
   }
 
-  /** Язык: сохранённый пользователем > совпадение navigator.language > ru */
-  function detect() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && LANGS.includes(saved)) return saved;
-    const nav = (navigator.language || "").slice(0, 2).toLowerCase();
-    return LANGS.includes(nav) ? nav : FALLBACK;
-  }
-
-  /** Загружает locales/<lang>.json с кэшем; при сбое — fallback на en */
-  async function loadLocale(lang) {
+  async function fetchDict(lang) {
     if (cache.has(lang)) return cache.get(lang);
     try {
-      const res = await fetch(`locales/${lang}.json`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}: locales/${lang}.json`);
-      const data = await res.json();
-      cache.set(lang, data);
-      return data;
-    } catch (err) {
-      console.warn(`[i18n] Не удалось загрузить локализацию "${lang}"`, err);
-      if (lang !== FALLBACK) return loadLocale(FALLBACK);
+      const r = await fetch(`locales/${lang}.json`, { cache: "no-store" });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const json = await r.json();
+      cache.set(lang, json);
+      return json;
+    } catch (e) {
+      console.warn(`[i18n] не удалось загрузить словарь «${lang}»:`, e);
+      cache.set(lang, null);
       return null;
     }
   }
 
-  /* ---------- применение словаря к DOM ---------- */
-
-  /** Живой год в подвале: шаблон из словаря, <span id="year"> не затирается */
-  function renderYear() {
-    const el = document.querySelector('[data-i18n="html.footerMain"]');
-    if (!el) return;
-    const year = String(new Date().getFullYear());
-    let tmpl = i18n.t("html.footerMain");
-    if (tmpl === "html.footerMain") tmpl = "CRYPTO PULSE © {year}";
-    if (!tmpl.includes("{year}")) {
-      const i = tmpl.indexOf("—");
-      tmpl = (i > -1 ? tmpl.slice(0, i) : tmpl + " ") + "{year} " + (i > -1 ? tmpl.slice(i) : "");
-    }
-    if (el.textContent.replace(/\s+/g, " ").trim() === tmpl.replace("{year}", year).replace(/\s+/g, " ").trim()) return;
-
-    el.textContent = "";
-    const [before, ...rest] = tmpl.split("{year}");
-    el.append(document.createTextNode(before));
-    const span = document.createElement("span");
-    span.id = "year";
-    span.textContent = year;
-    el.appendChild(span);
-    el.append(document.createTextNode(rest.join("{year}")));
-  }
-
-  /** Переводит статичную разметку: текст, атрибуты, title, html lang, glitch-текст */
-  function applyToDOM() {
-    document.documentElement.lang = current;
-
-    document.querySelectorAll("[data-i18n]").forEach((el) => {
-      const text = i18n.t(el.dataset.i18n);
-      if (text === el.dataset.i18n) return; // ключа нет — оставляем исходный текст
-      if (el.querySelector("#year")) return; // подвал с живым годом — см. renderYear()
-      el.textContent = text;
-      if (el.classList.contains("glitch")) el.setAttribute("data-text", text);
+  /* Переводит статичную разметку: текст, атрибуты, title, html lang */
+  function applyDom(root = document) {
+    root.querySelectorAll("[data-i18n]").forEach((el) => {
+      const text = lookup(dict, el.dataset.i18n) ?? lookup(cache.get(FALLBACK) || {}, el.dataset.i18n);
+      if (text != null) el.textContent = text;
     });
-
-    /* Плейсхолдеры с переменными: data-i18n-tpl="ключ|var=значение" */
-    document.querySelectorAll("[data-i18n-tpl]").forEach((el) => {
-      const [key, ...varPairs] = el.dataset.i18nTpl.split("|");
-      const vars = {};
-      varPairs.forEach((p) => { const [k, v] = p.split("="); if (k && v !== undefined) vars[k] = v; });
-      const text = i18n.t(key, vars);
-      if (text !== key) el.textContent = text;
-    });
-
-    /* Атрибуты: data-i18n-attr="placeholder:ключ;aria-label:ключ;alt:ключ" */
-    document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
-      el.dataset.i18nAttr.split(";").forEach((pair) => {
-        const [attr, key] = pair.split(":");
-        if (!attr || !key) return;
-        const text = i18n.t(key);
-        if (text !== key) el.setAttribute(attr, text);
+    root.querySelectorAll("[data-i18n-attr]").forEach((el) => {
+      el.dataset.i18nAttr.split(";").map((s) => s.trim()).filter(Boolean).forEach((pair) => {
+        const idx = pair.indexOf(":");
+        if (idx < 0) return;
+        const attr = pair.slice(0, idx).trim();
+        const key = pair.slice(idx + 1).trim();
+        const val = lookup(dict, key) ?? lookup(cache.get(FALLBACK) || {}, key);
+        if (val == null) return;
+        if (attr === "content") {
+          el.setAttribute("content", val);
+        } else if (attr === "title" && document.title) {
+          document.title = val;
+        } else {
+          el.setAttribute(attr, val);
+        }
       });
     });
-
-    if (i18n.t("html.title") !== "html.title") document.title = i18n.t("html.title");
-    renderYear();
+    const t = lookup(dict, "html.title");
+    if (t) document.title = t;
+    document.documentElement.lang = current;
   }
-
-  /* ---------- переключение языка ---------- */
 
   async function setLang(lang) {
-    if (!LANGS.includes(lang) || (lang === current && cache.size > 0)) return false;
-    const data = await loadLocale(lang);
-    if (!data) return false;
+    if (!LANGS.includes(lang)) lang = FALLBACK;
+    let d = await fetchDict(lang);
+    if (!d && lang !== FALLBACK) d = await fetchDict(FALLBACK);
+    if (!d) d = {};
     current = lang;
-    dict = data;
-    localStorage.setItem(STORAGE_KEY, lang);
-    applyToDOM();
-    listeners.forEach((fn) => { try { fn(lang); } catch (e) { console.error("[i18n] onChange:", e); } });
-    return true;
-  }
-
-  /** Инициализация: определить язык, загрузить словарь, перевести страницу */
-  async function init() {
-    const initial = detect();
-    const data = await loadLocale(initial);
-    if (data) { current = initial; dict = data; }
-    applyToDOM();
-    return current;
+    dict = d;
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {}
+    applyDom();
+    listeners.forEach((fn) => { try { fn(lang); } catch (e) { console.error(e); } });
+    return lang;
   }
 
   return {
-    init,
-    setLang,
-    t,
-    detect,
-    onChange: (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
-    get lang() { return current; },
-    get intl() { return INTL[current] ?? "en-US"; },
-    langs: LANGS,
+    LANGS,
     names: NAMES,
+    locale: () => INTL[current] || undefined,
+    get lang() { return current; },
+    /** Перевод по ключу "a.b.c" с подстановкой {vars}; fallback — en, затем сам ключ */
+    t(key, vars) {
+      return lookup(dict, key, vars)
+          ?? lookup(cache.get(FALLBACK) || {}, key, vars)
+          ?? key;
+    },
+    setLang,
+    onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+    /** Язык из localStorage / браузера (или дефолт разметки — ru) */
+    detect() {
+      let saved = null;
+      try { saved = localStorage.getItem(STORAGE_KEY); } catch (_) {}
+      if (saved && LANGS.includes(saved)) return saved;
+      const nav = (navigator.language || "ru").slice(0, 2).toLowerCase();
+      return LANGS.includes(nav) ? nav : FALLBACK;
+    },
+    /** Инициализация: загрузить словарь и перевести статику */
+    async init() { await setLang(this.detect()); },
   };
 })();
-window.i18n = i18n; // отладка/расширения: i18n.setLang('de')
 
-/* ---------- 1. КОНФИГУРАЦИЯ ---------- */
+window.i18n = i18n; // внешний API для остальных модулей
 
-/* URL бэкенда для уведомлений об оплате.
-   GitHub Pages не поддерживает переменные окружения, поэтому
-   это просто константа — поменяй домен на свой перед деплоем. */
-const NOTIFY_API_URL = "https://donati77.mooo.com/api/crypto-notify"; // домен контейнера (nginx -> FastAPI /api/crypto-notify)
+/* ============================================================
+   КОНФИГУРАЦИЯ — замени значения на свои!
+   ============================================================ */
 
-/* Путь к данным с адресами — единственный источник истины:
-   чистый JSON-файл crypto/addresses.json (файл addresses.all.json удалён).
+/** URL бэкенда для уведомлений об оплате (POST {network, amount, comment, address}) */
+const NOTIFY_API_URL = "https://api.mydomain.com/crypto-notify";
 
-   ВАЖНО: путь вычисляется ОТ АБСОЛЮТНОЙ базы относительно фактического
-   расположения index.html (document.baseURI), поэтому:
-   - опечатка в URL («adresses.json») больше не приведёт к 404 на другом хостинге;
-   - работает и в корне домена, и в подпадке GitHub Pages (/repo/);
-   - если файл по пути отсутствует — понятная ошибка в консоль + retry в UI. */
-const DATA_PATH = "crypto/addresses.json"; // относительный путь от корня сайта
-const DATA_URL = new URL(DATA_PATH, document.baseURI).href;
+/** Путь к данным кошельков (относительно корня сайта на GitHub Pages) */
+const ADDRESSES_URL = "crypto/addresses.json";
 
-/* Таймаут запроса к бэкенду, мс */
+/** Таймаут сетевого запроса к бэкенду, мс */
 const REQUEST_TIMEOUT_MS = 15000;
 
-/* Языковые метаданные для переключателя в шапке (флаг + короткое имя).
-   Полные словари и логика — в модуле i18n (секция 0). */
-const LANG_META = {
-  ru: { flag: "🇷🇺", short: "RU" },
-  en: { flag: "🇺🇸", short: "EN" },
-  zh: { flag: "🇨🇳", short: "中" },
-  ja: { flag: "🇯🇵", short: "日" },
-  es: { flag: "🇪🇸", short: "ES" },
-  de: { flag: "🇩🇪", short: "DE" },
-};
-
-/* ---------- 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ ---------- */
+/* ============================================================
+   СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+   ============================================================ */
 const state = {
-  networks: [],      // массив сетей из JSON
-  selected: null,    // выбранная сеть (объект из JSON)
-  loading: false,    // идёт ли загрузка данных
-  status: null,      // последний {type} статус — текст всегда через i18n.t()
+  networks: [],       // исходный массив из addresses.json
+  selected: null,     // выбранная сеть (объект)
+  tier: "all",        // активный фильтр по типу
+  query: "",          // строка поиска
+  loading: false,
+  loadError: null,    // текст ошибки загрузки или null
 };
 
-/* ---------- 3. ССЫЛКИ НА DOM ---------- */
-const dom = {
-  cardsGrid:        document.getElementById("cardsGrid"),   // горизонтальный трек карусели
-  cardTemplate:     document.getElementById("cardTemplate"),
-  searchInput:      document.getElementById("searchInput"),
-  dropdown:         document.getElementById("networkDropdown"),
-  dropToggle:       document.getElementById("dropdownToggle"),
-  dropLabel:        document.getElementById("dropdownLabel"),
-  dropMenu:         document.getElementById("dropdownMenu"),
-  statusDot:        document.getElementById("statusDot"),
-  statusText:       document.getElementById("statusText"),
-  placeholder:      document.getElementById("paymentPlaceholder"),
-  payPanel:         document.getElementById("payPanel"),
-  payLogo:          document.getElementById("payLogo"),
-  payName:          document.getElementById("payName"),
-  payCode:          document.getElementById("payCode"),
-  payQr:            document.getElementById("payQr"),
-  qrFrame:          document.getElementById("qrFrame"),
-  addressBox:       document.getElementById("addressBox"),
-  copyBtn:          document.getElementById("copyBtn"),
-  copyBtnText:      document.getElementById("copyBtnText"),
-  notifyForm:       document.getElementById("notifyForm"),
-  amountInput:      document.getElementById("amountInput"),
-  commentInput:     document.getElementById("commentInput"),
-  submitBtn:        document.getElementById("submitBtn"),
-  tierChips:        document.getElementById("tierChips"),
-  resultCount:      document.getElementById("resultCount"),
-  toastContainer:   document.getElementById("toastContainer"),
-  themeToggle:      document.getElementById("themeToggle"),
-  year:             document.getElementById("year"),
-  clockTicker:      document.getElementById("clockTicker"),
-  /* новый дизайн: карусель, счётчик сетей, прогресс скролла, модалка QR */
-  carousel:         document.getElementById("carousel"),
-  carouselPrev:     document.getElementById("carouselPrev"),
-  carouselNext:     document.getElementById("carouselNext"),
-  carouselThumb:    document.getElementById("carouselThumb"),
-  scrollProgress:   document.getElementById("scrollProgress"),
-  statNetworks:     document.getElementById("statNetworks"),
-  qrModal:          document.getElementById("qrModal"),
-  qrModalBackdrop:  document.getElementById("qrModalBackdrop"),
-  qrModalClose:     document.getElementById("qrModalClose"),
-  qrModalTitle:     document.getElementById("qrModalTitle"),
-  qrModalImg:       document.getElementById("qrModalImg"),
-  qrModalCoin:      document.getElementById("qrModalCoin"),
-  qrModalCopy:      document.getElementById("qrModalCopy"),
+/* ---------- Короткие ссылки на DOM ---------- */
+const $ = (sel) => document.querySelector(sel);
+const els = {
+  statusDot: $("#statusDot"),
+  statusText: $("#statusText"),
+  statNetworks: $("#statNetworks"),
+  cardsGrid: $("#cardsGrid"),
+  cardTemplate: $("#cardTemplate"),
+  searchInput: $("#searchInput"),
+  resultCount: $("#resultCount"),
+  tierChips: $("#tierChips"),
+  dropdown: $("#networkDropdown"),
+  dropdownToggle: $("#dropdownToggle"),
+  dropdownLabel: $("#dropdownLabel"),
+  dropdownMenu: $("#dropdownMenu"),
+  payPanel: $("#payPanel"),
+  paymentPlaceholder: $("#paymentPlaceholder"),
+  payLogo: $("#payLogo"),
+  payName: $("#payName"),
+  payCode: $("#payCode"),
+  payQr: $("#payQr"),
+  qrFrame: $("#qrFrame"),
+  addressBox: $("#addressBox"),
+  copyBtn: $("#copyBtn"),
+  copyBtnText: $("#copyBtnText"),
+  notifyForm: $("#notifyForm"),
+  amountInput: $("#amountInput"),
+  commentInput: $("#commentInput"),
+  submitBtn: $("#submitBtn"),
+  submitLabel: $("#submitLabel"),
+  toastContainer: $("#toastContainer"),
+  themeToggle: $("#themeToggle"),
+  clockTicker: $("#clockTicker"),
+  scrollProgress: $("#scrollProgress"),
+  carousel: $("#carousel"),
+  carouselPrev: $("#carouselPrev"),
+  carouselNext: $("#carouselNext"),
+  carouselThumb: $("#carouselThumb"),
+  langSwitch: $("#langSwitch"),
+  year: $("#year"),
+  modal: $("#qrModal"),
+  modalBackdrop: $("#qrModalBackdrop"),
+  modalClose: $("#qrModalClose"),
+  modalImg: $("#qrModalImg"),
+  modalTitle: $("#qrModalTitle"),
+  modalCopy: $("#qrModalCopy"),
+  modalCoin: $("#qrModalCoin"),
 };
 
-/* ---------- 4. УТИЛИТЫ ---------- */
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
 
-/**
- * Безопасное экранирование HTML (все данные из JSON вставляются через него).
- * @param {string} str - произвольная строка
- * @returns {string} строка без опасных символов
- */
-function escapeHtml(str) {
-  return String(str ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+/** Экранирование текста для безопасного попадания в innerHTML */
+function esc(str) {
+  return String(str)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-/**
- * Показ статус-индикатора в hero-секции.
- * @param {"loading"|"ok"|"error"} type — текст берётся из словаря i18n
- */
-function setStatus(type) {
-  state.status = type;                 // запоминаем тип — статус перерисовывается при смене языка
-  dom.statusDot.className = "status-dot status-dot--" + type;
-  const key = type === "ok" ? "status.online" : type === "error" ? "status.offline" : "status.loading";
-  dom.statusText.textContent = i18n.t(key, type === "ok" ? { count: state.networks.length } : undefined);
+/** Дебаунт: функция срабатывает через `wait` мс после последнего вызова */
+function debounce(fn, wait = 160) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
 }
 
+/** Приводит относительный путь из JSON к пути от корня сайта (для GitHub Pages) */
+function sitePath(p) {
+  if (!p) return "";
+  if (/^(https?:)?\/\//i.test(p) || p.startsWith("data:") || p.startsWith("blob:")) return p;
+  const base = document.baseURI || location.href;
+  try { return new URL(p.replace(/^\/+/, ""), base).href; } catch (_) { return p; }
+}
+
+/** Извлекает чистое имя монеты из названия сети: "USDT TRC20" -> "USDT" */
+function coinOf(networkName) {
+  const parts = String(networkName || "").trim().split(/\s+/);
+  return (parts[0] || networkName || "").toUpperCase();
+}
+
+/** Возвращает тир (цвет) сети: из JSON, иначе — эвристика по имени */
+function tierOf(net) {
+  const raw = net.tier || net.category || net.group || "";
+  const known = ["core", "evm", "l1", "privacy", "meme"];
+  if (known.includes(raw)) return raw;
+  const n = String(net.network).toUpperCase();
+  if (/XMR|ZEC|DASH|STEALTH/i.test(n)) return "privacy";
+  if (/DOGE|SHIB|PEPE|WIF|BONK|FLOKI|MEME|TRUMP/i.test(n)) return "meme";
+  if (/BSC|POLYGON|ARBITRUM|OPTIMISM|BASE|AVAX|FANTOM|TRON|HECO|LINEA|SCROLL|ZKSYNC/i.test(n)) return "evm";
+  if (/BTC|LTC|DOGE-BTC|BITCOIN|USD/i.test(n)) return "core";
+  return "l1";
+}
+
+/** Форматирование числа с разделителями тысяч в активной локали */
+function fmtInt(n) {
+  return new Intl.NumberFormat(i18n.locale()).format(n);
+}
+
+/** Count-up анимация числа в элементе */
+function countUp(el, target, duration = 900) {
+  const start = performance.now();
+  function frame(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+    el.textContent = fmtInt(Math.round(target * eased));
+    if (p < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   TOAST — стильные всплывающие уведомления
+   type: success | error | info
+   ============================================================ */
+const ICONS = { success: "✓", error: "✕", info: "⚡" };
+
 /**
- * Стильные всплывающие toast-уведомления.
- * @param {string} message - текст
- * @param {"success"|"error"|"info"} [type="info"]
- * @param {number} [duration=3500] - время показа, мс
+ * Длительность toast задаётся классом (.toast--4s / --6s),
+ * а НЕ inline-стилем: страница работает под строгой CSP.
  */
-function showToast(message, type = "info", duration = 3500) {
-  const icons = { success: "✔", error: "✖", info: "ℹ" };
+function toast(message, type = "info", duration = 3600) {
+  const secs = duration <= 2500 ? 3 : duration <= 4500 ? 5 : 7;
+  const el = document.createElement("div");
+  el.className = `toast toast--${type} toast--${secs}s`;
+  el.innerHTML = `<span class="toast__icon" aria-hidden="true">${ICONS[type] || ICONS.info}</span><span>${esc(message)}</span>`;
+  els.toastContainer.appendChild(el);
 
-  const toast = document.createElement("div");
-  toast.className = `toast toast--${type}`;
-  toast.innerHTML = `<span class="toast__icon">${icons[type]}</span><span>${escapeHtml(message)}</span>`;
-  dom.toastContainer.appendChild(toast);
-
-  // Автоскрытие с анимацией выхода
+  // Авто-скрытие с fade-out
   setTimeout(() => {
-    toast.classList.add("is-hiding");
-    toast.addEventListener("animationend", () => toast.remove(), { once: true });
+    el.classList.add("is-hiding");
+    el.addEventListener("animationend", () => el.remove(), { once: true });
   }, duration);
+
+  // Клик по toast — закрыть сразу
+  el.addEventListener("click", () => el.remove());
 }
 
-/**
- * Fetch с таймаутом через AbortController.
- * @param {string} url
- * @param {RequestInit} options
- * @returns {Promise<Response>}
- */
-async function fetchWithTimeout(url, options = {}) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
+/* ============================================================
+   СТАТУС-БАР (загрузка / онлайн / ошибка)
+   ============================================================ */
+function setStatus(kind, textKey) {
+  els.statusDot.className = `status-dot status-dot--${kind}`;
+  els.statusText.textContent = i18n.t(textKey);
 }
 
-/* ---------- 5. ЗАГРУЗКА ДАННЫХ (addresses.json) ---------- */
-
-/**
- * Загружает JSON со списком сетей (единственный источник — crypto/addresses.json).
- * Бросает ошибку при HTTP-ошибке или битом JSON.
- */
-async function fetchNetworksJson() {
-  const response = await fetch(DATA_URL, { cache: "no-store" }); // no-store — свежий файл без кэша браузера
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${DATA_URL}`);
-  }
-
-  // GitHub Pages иногда отдаёт HTML-страницу 404 с кодом 200 —
-  // response.json() в этом случае упадёт с понятной ошибкой парсинга.
-  return response.json();
-}
-
-/**
- * Асинхронно подгружает JSON со списком сетей и запускает рендер.
- * Обрабатывает сетевые ошибки, HTTP-ошибки и битый JSON.
- */
+/* ============================================================
+   ЗАГРУЗКА ДАННЫХ: fetch('crypto/addresses.json')
+   ============================================================ */
 async function loadNetworks() {
   state.loading = true;
-  setStatus("loading");
+  state.loadError = null;
+  setStatus("loading", "status.loading");
+  renderSkeletons(6);
 
   try {
-    const data = await fetchNetworksJson();
+    const res = await fetch(ADDRESSES_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
 
-    // Поддержка двух форматов: массив объектов OR объект вида { networks: [...] }
-    const list = Array.isArray(data) ? data : (Array.isArray(data.networks) ? data.networks : null);
-
-    if (!list || list.length === 0) {
-      throw new Error(i18n.t("errors.badData"));
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new TypeError("bad data");
     }
 
-    // Сортировка по алфавиту — так список выглядит аккуратно и предсказуемо
-    list.sort((a, b) => String(a.name ?? a.code).localeCompare(String(b.name ?? b.code)));
-
-    // Нормализация: раскрываем относительные пути qr/img из корня /crypto
-    state.networks = list.map((net) => ({
-      id: net.id,
-      code: String(net.code ?? ""),
-      name: String(net.name ?? net.code ?? i18n.t("errors.untitled")),
-      address: String(net.address ?? ""),
-      qr: net.qr ? `crypto/${String(net.qr).replace(/^\.?\//, "")}` : "",
-      img: net.img ? `crypto/${String(net.img).replace(/^\.?\//, "")}` : "",
-      tier: String(net.tier ?? "l1"), // тир сети для группировки карточек (core/evm/l1/privacy/meme)
+    state.networks = data.map((raw, i) => ({
+      id: i,
+      network: String(raw.network || raw.name || `#${i}`),
+      address: String(raw.address || raw.wallet || ""),
+      logo: sitePath(raw.logo || ""),
+      qr: sitePath(raw.qr || ""),
+      tier: tierOf(raw),
     }));
 
-    buildTierChips();
-    refreshLists();
-
-    setStatus("ok");
-    animateCounter(dom.statNetworks, state.networks.length); // «N сетей» в hero — count-up
-
-    // Восстанавливаем выбранную сеть после перезагрузки, если она ещё существует
-    const savedNetId = Number(localStorage.getItem("cp-net"));
-    if (savedNetId) {
-      const restored = state.networks.find((n) => n.id === savedNetId);
-      if (restored && restored.address) selectNetwork(restored, { silent: true });
-    }
-    showToast(i18n.t("toast.listUpdated", { count: state.networks.length }), "info", 2500);
-  } catch (error) {
-    console.error("[CryptoPulse] Ошибка загрузки данных:", error);
-
-    const isAbort = error.name === "AbortError";
-    const message = isAbort ? i18n.t("errors.timeout") : i18n.t("errors.loadFailed");
-
-    setStatus("error");
-    renderLoadError(message);
-    showToast(message + i18n.t("errors.checkConnection"), "error", 6000);
-  } finally {
     state.loading = false;
+    setStatus("ok", "status.online");
+    els.statNetworks.textContent = "0";
+    countUp(els.statNetworks, state.networks.length);
+
+    buildTierChips();
+    renderAll();
+  } catch (err) {
+    console.error("[CryptoPulse] Ошибка загрузки данных:", err);
+    state.loading = false;
+    state.loadError = err instanceof TypeError ? i18n.t("errors.badData") : i18n.t("errors.loadFailed");
+    setStatus("error", "errors.checkConnection");
+    renderLoadError();
+    toast(state.loadError, "error", 6000);
   }
 }
 
-/**
- * Замена трека карточек на сообщение об ошибке с кнопкой «Повторить».
- * @param {string} message
- */
-function renderLoadError(message) {
-  dom.cardsGrid.innerHTML = `
+/** Скелетоны на время загрузки */
+function renderSkeletons(count) {
+  const track = els.cardsGrid;
+  clearTrack();
+  const tpl = `
+    <div class="skeleton-card">
+      <span class="skeleton skeleton--circle"></span>
+      <span class="skeleton skeleton--line"></span>
+      <span class="skeleton skeleton--line skeleton--short"></span>
+    </div>`;
+  track.insertAdjacentHTML("beforeend", tpl.repeat(count));
+}
+
+/** Удаляет всё содержимое карусели (кроме <template>) */
+function clearTrack() {
+  [...els.cardsGrid.children].forEach((ch) => {
+    if (ch.tagName.toLowerCase() !== "template") ch.remove();
+  });
+}
+
+/** Сообщение об ошибке загрузки внутри карусели */
+function renderLoadError() {
+  clearTrack();
+  els.cardsGrid.insertAdjacentHTML("beforeend", `
     <div class="track-message">
       <span class="payment__placeholder-icon" aria-hidden="true">⚠</span>
-      <span>${escapeHtml(message)}</span>
-      <button class="btn btn--gold" type="button" id="retryBtn">
-        ${escapeHtml(i18n.t("errors.retry"))}
-      </button>
-    </div>`;
-  document.getElementById("retryBtn")?.addEventListener("click", loadNetworks);
+      <strong>${esc(i18n.t("errors.loadFailed"))}</strong>
+      <span>${esc(i18n.t("errors.checkConnection"))}</span>
+      <button class="btn btn--ghost" type="button" data-action="retry">${esc(i18n.t("errors.retry"))}</button>
+    </div>`);
+  els.cardsGrid.querySelector('[data-action="retry"]').addEventListener("click", loadNetworks);
+  updateCarouselChrome();
 }
 
-/* ---------- 6. РЕНДЕР КАРТОЧЕК СЕТЕЙ (карусель) ---------- */
+/** Пустой результат поиска */
+function renderEmpty() {
+  clearTrack();
+  els.cardsGrid.insertAdjacentHTML("beforeend", `
+    <div class="track-message">
+      <span class="payment__placeholder-icon" aria-hidden="true">∅</span>
+      <strong>${esc(i18n.t("errors.empty"))}</strong>
+    </div>`);
+  updateCarouselChrome();
+}
 
-/**
- * Отрисовывает сетку карточек из переданного списка сетей.
- * @param {Array} list - фильтрованный или полный список
- */
-function renderCards(list) {
-  // Удаляем скелетоны/старые карточки, оставляя только <template>
-  dom.cardsGrid.querySelectorAll(":scope > *:not(template)").forEach((el) => el.remove());
+/* ============================================================
+   ФИЛЬТРЫ: чипы типов сетей
+   ============================================================ */
+const TIER_ORDER = ["core", "evm", "l1", "privacy", "meme"];
 
-  if (list.length === 0) {
-    dom.cardsGrid.innerHTML = `
-      <div class="track-message">
-        <span class="payment__placeholder-icon" aria-hidden="true">∅</span>
-        <span>${escapeHtml(i18n.t("errors.empty"))}</span>
-      </div>`;
-    return;
+function buildTierChips() {
+  const counts = { all: state.networks.length };
+  state.networks.forEach((n) => { counts[n.tier] = (counts[n.tier] || 0) + 1; });
+
+  const chips = [{ key: "all", label: i18n.t("ui.tier.all") }]
+    .concat(TIER_ORDER.filter((t) => counts[t]).map((t) => ({ key: t, label: i18n.t(`ui.tier.${t}`) })));
+
+  els.tierChips.innerHTML = chips
+    .map((c) => `<button class="chip${state.tier === c.key ? " is-active" : ""}" type="button" data-tier="${c.key}">${esc(c.label)}${c.key !== "all" && counts[c.key] ? ` <small>${counts[c.key]}</small>` : ""}</button>`)
+    .join("");
+}
+
+els.tierChips.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  state.tier = chip.dataset.tier;
+  els.tierChips.querySelectorAll(".chip").forEach((c) => c.classList.toggle("is-active", c === chip));
+  renderAll();
+});
+
+/* ============================================================
+   ПОИСК
+   ============================================================ */
+const onSearch = debounce(() => {
+  state.query = els.searchInput.value.trim().toLowerCase();
+  renderAll();
+}, 140);
+
+els.searchInput.addEventListener("input", onSearch);
+
+/* Хоткей "/" — фокус на поиск (как в терминалах) */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && !/input|textarea/i.test(document.activeElement.tagName)) {
+    e.preventDefault();
+    els.searchInput.focus();
   }
+  if (e.key === "Escape") {
+    closeDropdown();
+    closeModal();
+  }
+});
 
-  const fragment = document.createDocumentFragment();
+/* ============================================================
+   РЕНДЕР: карточки + dropdown (учитывают фильтр и поиск)
+   ============================================================ */
+function filteredNetworks() {
+  return state.networks.filter((n) => {
+    const okTier = state.tier === "all" || n.tier === state.tier;
+    const q = state.query;
+    const okQuery = !q || n.network.toLowerCase().includes(q) || coinOf(n.network).toLowerCase().includes(q);
+    return okTier && okQuery;
+  });
+}
 
-  list.forEach((net) => {
-    // Клонируем карточку из <template> — быстрый и безопасный способ
-    const node = dom.cardTemplate.content.cloneNode(true);
-    const card = node.querySelector(".card");
+function renderAll() {
+  const list = filteredNetworks();
+  renderCards(list);
+  renderDropdownItems(list);
+  els.resultCount.textContent = list.length === state.networks.length
+    ? `${fmtInt(list.length)} ${i18n.t("ui.networksUnit")}`
+    : i18n.t("ui.shownOf", { shown: fmtInt(list.length), total: fmtInt(state.networks.length) });
+}
 
-    card.dataset.id = net.id;
-    card.setAttribute("aria-label", `${i18n.t("html.cardSelectAria")} ${net.name}`);
+function renderCards(list) {
+  clearTrack();
+  if (!list.length) { renderEmpty(); return; }
+
+  const frag = document.createDocumentFragment();
+  list.forEach((net, i) => {
+    const node = els.cardTemplate.content.firstElementChild.cloneNode(true);
+    node.dataset.id = net.id;
+    node.setAttribute("aria-label", i18n.t("html.cardSelectAria", { network: net.network }));
+    node.style.setProperty("--delay", `${Math.min(i, 10) * 40}ms`);
 
     const logo = node.querySelector(".card__logo");
-    if (net.img) {
-      logo.src = net.img;
-      logo.alt = `${i18n.t("html.cardLogoAlt")} ${net.name}`;
-      // Битый логотип прячем (без inline-обработчика — CSP-friendly)
-      logo.addEventListener("error", () => logo.classList.add("is-missing"), { once: true });
-    } else {
-      logo.remove(); // если логотипа нет — не показываем битую картинку
-    }
+    logo.src = net.logo;
+    logo.alt = net.network;
+    logo.addEventListener("error", () => logo.classList.add("is-missing"));
 
-    node.querySelector(".card__name").textContent = net.name;
-    node.querySelector(".card__code").textContent = net.code;
-    node.querySelector(".card__select").textContent = i18n.t("ui.select"); // «выбрать» — появляется на hover
+    const tierEl = node.querySelector(".card__tier");
+    tierEl.dataset.tier = net.tier;
+    tierEl.textContent = i18n.t(`ui.tier.${net.tier}`);
 
-    // Бейдж тира сети (CORE / EVM / L1 / PRIVACY / MEME) — цветовая группировка
-    const badge = node.querySelector(".card__tier");
-    if (badge) {
-      badge.textContent = i18n.t(`ui.tier.${net.tier}`) !== `ui.tier.${net.tier}` ? i18n.t(`ui.tier.${net.tier}`) : (TIER_LABELS[net.tier] ?? "L1");
-      badge.dataset.tier = net.tier;
-    }
+    node.querySelector(".card__name").textContent = coinOf(net.network);
+    node.querySelector(".card__code").textContent = net.network.toUpperCase().replace(coinOf(net.network), "").trim() || net.network.toUpperCase();
+    node.querySelector(".card__select").textContent = i18n.t("ui.select");
 
-    // Клик и Enter/Space выбирают сеть
-    card.addEventListener("click", () => selectNetwork(net));
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        selectNetwork(net);
-      }
-    });
-
-    // Подсвечиваем, если эта сеть уже выбрана
-    if (state.selected?.id === net.id) card.classList.add("is-selected");
-
-    fragment.appendChild(node);
+    if (state.selected && state.selected.id === net.id) node.classList.add("is-selected");
+    frag.appendChild(node);
   });
 
-  dom.cardsGrid.appendChild(fragment);
-  updateCarouselNav(); // пересчитать стрелки/ползунок под новую длину трека
-}
+  els.cardsGrid.appendChild(frag);
 
-/* ---------- 7. КАСТОМНЫЙ ВЫПАДАЮЩИЙ СПИСОК ---------- */
-
-/**
- * Наполняет меню dropdown пунктами со списком сетей.
- * @param {Array} list
- */
-function renderDropdownItems(list) {
-  dom.dropMenu.innerHTML = "";
-
-  list.forEach((net) => {
-    const li = document.createElement("li");
-    li.className = "dropdown__item";
-    li.setAttribute("role", "option");
-    li.tabIndex = -1;
-    li.innerHTML = `
-      ${net.img ? `<img src="${escapeHtml(net.img)}" alt="" loading="lazy">` : ""}
-      <b>${escapeHtml(net.name)}</b>
-      <span>${escapeHtml(net.code)}</span>`;
-    li.addEventListener("click", () => {
-      selectNetwork(net);
-      closeDropdown();
+  // Появление карточек через IntersectionObserver
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
     });
-    dom.dropMenu.appendChild(li);
-  });
+  }, { root: els.cardsGrid, threshold: 0.15 });
+  els.cardsGrid.querySelectorAll(".card").forEach((c) => io.observe(c));
+
+  updateCarouselChrome();
 }
 
-/** Открыть/закрыть меню */
-function toggleDropdown() {
-  const isOpen = dom.dropdown.classList.toggle("is-open");
-  dom.dropToggle.setAttribute("aria-expanded", String(isOpen));
-}
-function closeDropdown() {
-  dom.dropdown.classList.remove("is-open");
-  dom.dropToggle.setAttribute("aria-expanded", "false");
-}
-
-dom.dropToggle.addEventListener("click", toggleDropdown);
-
-// Клик мимо dropdown'а закрывает его
-document.addEventListener("click", (e) => {
-  if (!dom.dropdown.contains(e.target)) closeDropdown();
+/* ---------- Клик / Enter по карточке → выбрать сеть ---------- */
+els.cardsGrid.addEventListener("click", (e) => {
+  const card = e.target.closest(".card");
+  if (card) selectNetwork(Number(card.dataset.id));
+});
+els.cardsGrid.addEventListener("keydown", (e) => {
+  const card = e.target.closest(".card");
+  if (card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectNetwork(Number(card.dataset.id)); }
 });
 
-// Escape закрывает меню
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeDropdown();
+/* Glow-подсветка карточки следует за курсором (CSS custom props) */
+els.cardsGrid.addEventListener("pointermove", (e) => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  card.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+  card.style.setProperty("--my", `${e.clientY - rect.top}px`);
 });
 
-/* ---------- 8. ЖИВОЙ ПОИСК + ФИЛЬТРЫ ПО ТИПАМ ---------- */
+/* ============================================================
+   КАРУСЕЛЬ: стрелки, drag-скролл, мини-скроллбар
+   ============================================================ */
+function scrollTrack(dir) {
+  els.cardsGrid.scrollBy({ left: dir * Math.max(els.cardsGrid.clientWidth * 0.8, 320), behavior: "smooth" });
+}
+els.carouselPrev.addEventListener("click", () => scrollTrack(-1));
+els.carouselNext.addEventListener("click", () => scrollTrack(1));
 
-/** Активный фильтр по тиру: null | "core" | "evm" | "l1" | "privacy" | "meme" */
-let tierFilter = null;
-
-const TIER_LABELS = { core: "CORE", evm: "EVM", l1: "L1", privacy: "PRIVACY", meme: "MEME" };
-
-/** Возвращает список сетей с учётом строки поиска и выбранного чипа-фильтра */
-function getFilteredNetworks() {
-  const query = dom.searchInput.value.trim().toLowerCase();
-
-  return state.networks.filter((net) => {
-    if (tierFilter && net.tier !== tierFilter) return false;
-    if (!query) return true;
-    return (
-      net.code.toLowerCase().includes(query) ||
-      net.name.toLowerCase().includes(query) ||
-      net.address.toLowerCase().includes(query)
-    );
-  });
+function updateCarouselChrome() {
+  const t = els.cardsGrid;
+  const overflow = t.scrollWidth > t.clientWidth + 4;
+  els.carouselPrev.classList.toggle("is-disabled", !overflow || t.scrollLeft <= 4);
+  els.carouselNext.classList.toggle("is-disabled", !overflow || t.scrollLeft >= t.scrollWidth - t.clientWidth - 4);
+  updateThumb();
 }
 
-/** Перерисовывает сетку, dropdown и счётчик найденных сетей */
-function refreshLists() {
-  const filtered = getFilteredNetworks();
-  renderCards(filtered);
-  renderDropdownItems(filtered);
-
-  if (dom.resultCount) {
-    dom.resultCount.textContent = i18n.t("ui.shownOf", { shown: filtered.length, total: state.networks.length });
-  }
+function updateThumb() {
+  const t = els.cardsGrid;
+  if (!els.carouselThumb) return;
+  const ratio = t.clientWidth / Math.max(t.scrollWidth, 1);
+  const w = Math.max(ratio, 0.08);
+  // Позиция и размер ползунка — через CSS custom properties (CSP-safe)
+  els.carouselThumb.style.setProperty("--tw", `${w * 100}%`);
+  const maxScroll = Math.max(t.scrollWidth - t.clientWidth, 1);
+  els.carouselThumb.style.setProperty("--tx", `${(t.scrollLeft / maxScroll) * (100 - w * 100)}%`);
 }
 
-dom.searchInput.addEventListener("input", refreshLists);
+els.cardsGrid.addEventListener("scroll", () => requestAnimationFrame(updateCarouselChrome), { passive: true });
+window.addEventListener("resize", debounce(updateCarouselChrome, 120));
 
-/* Чипы-фильтры по типам сетей (строятся динамически из данных JSON) */
-function buildTierChips() {
-  if (!dom.tierChips) return;
-  dom.tierChips.innerHTML = "";
-
-  const makeChip = (tier, label) => {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "chip" + (tier === null ? " is-active" : "");
-    chip.dataset.tier = tier ?? "all";
-    chip.textContent = label;
-    chip.addEventListener("click", () => {
-      tierFilter = tier;
-      dom.tierChips.querySelectorAll(".chip").forEach((c) => c.classList.toggle("is-active", c === chip));
-      refreshLists();
-    });
-    dom.tierChips.appendChild(chip);
-  };
-
-  makeChip(null, i18n.t("ui.all"));
-  Object.keys(TIER_LABELS).forEach((tier) => {
-    if (state.networks.some((n) => n.tier === tier)) makeChip(tier, TIER_LABELS[tier]);
-  });
-}
-
-/* ---------- 9. ВЫБОР СЕТИ -> ОБНОВЛЕНИЕ БЛОКА ОПЛАТЫ ---------- */
-
-/**
- * Заполняет панель оплаты данными выбранной сети (без QR-перезагрузки).
- * Вызывается при выборе сети и при смене языка (перевод alt/label).
- * @param {boolean} [reloadQr=false] — перезагружать ли картинку QR
- */
-function syncPaymentPanel(reloadQr = false) {
-  const net = state.selected;
-  if (!net) return;
-
-  dom.dropLabel.innerHTML = `${escapeHtml(net.name)} <span class="dropdown__label-code">[${escapeHtml(net.code)}]</span>`;
-
-  dom.placeholder.hidden = true;
-  dom.payPanel.hidden = false;
-
-  if (net.img) {
-    dom.payLogo.src = net.img;
-    dom.payLogo.alt = `${i18n.t("html.cardLogoAlt")} ${net.name}`;
-    dom.payLogo.style.display = "";
-  } else {
-    dom.payLogo.style.display = "none";
-  }
-
-  dom.payName.textContent = net.name;
-  dom.payCode.textContent = "// " + net.code;
-  dom.payQr.alt = `${i18n.t("html.qrAltPrefix")} ${net.name}`;
-  dom.addressBox.value = net.address;
-
-  if (reloadQr) {
-    // QR: перечитаем src и проигрываем анимацию «проявки» при каждой смене сети
-    dom.payQr.classList.remove("is-loading");
-    dom.payQr.src = "";
-    if (net.qr) {
-      dom.payQr.src = net.qr;
-      dom.payQr.classList.add("is-loading");
-      dom.payQr.addEventListener("load", () => dom.payQr.classList.remove("is-loading"), { once: true });
-      dom.payQr.addEventListener("error", () => dom.payQr.classList.remove("is-loading"), { once: true });
-    }
-  }
-
-  resetCopyButton();
-}
-
-/**
- * Динамически заполняет панель: логотип, QR, адрес, подсветка карточки.
- * @param {Object} net - объект сети из state.networks
- * @param {{silent?: boolean}} [opts] - silent: без toast и скролла (автовосстановление)
- */
-function selectNetwork(net, opts = {}) {
-  if (!net.address) {
-    showToast(i18n.t("toast.noAddress", { name: net.name }), "error");
-    return;
-  }
-
-  state.selected = net;
-  localStorage.setItem("cp-net", String(net.id)); // выбор сети живёт до перезагрузки
-
-  // Подсветка выбранной карточки в сетке
-  dom.cardsGrid.querySelectorAll(".card").forEach((card) => {
-    card.classList.toggle("is-selected", Number(card.dataset.id) === net.id);
-  });
-
-  syncPaymentPanel(true);
-
-  if (!opts.silent) {
-    // Плавная прокрутка к панели (если она уже за пределами экрана)
-    const panelTop = dom.payPanel.getBoundingClientRect().top;
-    if (panelTop < 0 || panelTop > window.innerHeight * 0.7) {
-      dom.payPanel.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-
-    showToast(i18n.t("toast.networkSelected", { name: net.name }), "success", 2200);
-  }
-}
-
-/* ---------- 9.5 КАРУСЕЛЬ: стрелки, drag, колесо, ползунок, glow за курсором ---------- */
-
-/** Прокрутить трек на ~3 карточки в нужную сторону */
-function scrollCarousel(dir) {
-  dom.cardsGrid.scrollBy({ left: dir * Math.min(dom.cardsGrid.clientWidth * 0.8, 560), behavior: "smooth" });
-}
-
-/** Актуальное состояние стрелок + ширина/позиция ползунка-скроллбара */
-function updateCarouselNav() {
-  const track = dom.cardsGrid;
-  const max = track.scrollWidth - track.clientWidth;
-  if (dom.carouselPrev) dom.carouselPrev.classList.toggle("is-disabled", track.scrollLeft <= 4);
-  if (dom.carouselNext) dom.carouselNext.classList.toggle("is-disabled", track.scrollLeft >= max - 4);
-
-  if (dom.carouselThumb && max > 0) {
-    const ratio = track.clientWidth / track.scrollWidth;
-    dom.carouselThumb.style.width = `${Math.max(ratio * 100, 12)}%`;
-    const travel = 100 - Math.max(ratio * 100, 12);
-    dom.carouselThumb.style.transform = `translateX(${(track.scrollLeft / max) * travel}%)`;
-  }
-}
-
-/** Инициализация карусели — вызывается из main() */
-function initCarousel() {
-  const track = dom.cardsGrid;
-  if (!track || !dom.carousel) return;
-
-  dom.carouselPrev?.addEventListener("click", () => scrollCarousel(-1));
-  dom.carouselNext?.addEventListener("click", () => scrollCarousel(1));
-  track.addEventListener("scroll", updateCarouselNav, { passive: true });
-  window.addEventListener("resize", updateCarouselNav);
-
-  // Горизонтальный скролл колесом (вертикальный жест превращаем в горизонтальный)
-  track.addEventListener("wheel", (e) => {
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && track.scrollWidth > track.clientWidth) {
-      e.preventDefault();
-      track.scrollLeft += e.deltaY;
-    }
-  }, { passive: false });
-
-  // Drag мышью для прокрутки (клик по карточке после драга не выбирает сеть)
-  let dragging = false, startX = 0, startScroll = 0, moved = 0;
+/* Drag мышью как в нативных каруселях */
+(() => {
+  const track = els.cardsGrid;
+  let down = false, startX = 0, startLeft = 0, moved = false;
   track.addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "mouse") return;
-    dragging = true; moved = 0;
-    startX = e.clientX; startScroll = track.scrollLeft;
+    down = true; moved = false;
+    startX = e.clientX; startLeft = track.scrollLeft;
     track.classList.add("is-dragging");
   });
-  track.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
+  window.addEventListener("pointermove", (e) => {
+    if (!down) return;
     const dx = e.clientX - startX;
-    moved = Math.abs(dx);
-    track.scrollLeft = startScroll - dx;
+    if (Math.abs(dx) > 4) moved = true;
+    track.scrollLeft = startLeft - dx;
   });
-  const endDrag = () => { dragging = false; track.classList.remove("is-dragging"); };
-  track.addEventListener("pointerup", endDrag);
-  track.addEventListener("pointerleave", endDrag);
-  // Подача события «схлопывания» клика после драга — ловим на capture-фазе
-  track.addEventListener("click", (e) => {
-    if (moved > 8) { e.stopPropagation(); e.preventDefault(); moved = 0; }
-  }, true);
-
-  // Мягкое золотое свечение под курсором (переменные --mx/--my для .card__glow)
-  track.addEventListener("pointermove", (e) => {
-    const card = e.target.closest?.(".card");
-    if (!card) return;
-    const r = card.getBoundingClientRect();
-    card.style.setProperty("--mx", `${e.clientX - r.left}px`);
-    card.style.setProperty("--my", `${e.clientY - r.top}px`);
+  window.addEventListener("pointerup", () => {
+    if (!down) return;
+    down = false;
+    track.classList.remove("is-dragging");
   });
+  // После драга подавляем "ложный" клик по карточке
+  track.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+})();
 
-  updateCarouselNav();
+/* ============================================================
+   DROPDOWN (combobox) — стильный выпадающий список
+   ============================================================ */
+function renderDropdownItems(list) {
+  els.dropdownMenu.innerHTML = list.map((net) => `
+    <li class="dropdown__item" role="option" tabindex="-1" data-id="${net.id}"
+        aria-selected="${state.selected && state.selected.id === net.id}">
+      <img src="${esc(net.logo)}" alt="" loading="lazy">
+      <b>${esc(coinOf(net.network))}</b>
+      <span>${esc(net.network)}</span>
+    </li>`).join("");
 }
 
-/* ---------- 9.6 МОДАЛКА QR (увеличение по клику) ---------- */
+function openDropdown() {
+  els.dropdown.classList.add("is-open");
+  els.dropdownToggle.setAttribute("aria-expanded", "true");
+}
+function closeDropdown() {
+  els.dropdown.classList.remove("is-open");
+  els.dropdownToggle.setAttribute("aria-expanded", "false");
+}
 
-function openQrModal() {
+els.dropdownToggle.addEventListener("click", () => {
+  els.dropdown.classList.contains("is-open") ? closeDropdown() : openDropdown();
+});
+
+els.dropdownMenu.addEventListener("click", (e) => {
+  const item = e.target.closest(".dropdown__item");
+  if (!item) return;
+  selectNetwork(Number(item.dataset.id));
+  closeDropdown();
+});
+
+document.addEventListener("click", (e) => {
+  if (!els.dropdown.contains(e.target)) closeDropdown();
+});
+
+/* Клавиатура: стрелки по опциям, Enter — выбрать */
+els.dropdown.addEventListener("keydown", (e) => {
+  const items = [...els.dropdownMenu.querySelectorAll(".dropdown__item")];
+  if (!items.length) return;
+  const active = document.activeElement;
+  let idx = items.indexOf(active);
+  if (e.key === "ArrowDown") { e.preventDefault(); openDropdown(); items[Math.min(idx + 1, items.length - 1)]?.focus(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); items[Math.max(idx - 1, 0)]?.focus(); }
+  else if (e.key === "Enter" && active.classList.contains("dropdown__item")) { e.preventDefault(); active.click(); els.dropdownToggle.focus(); }
+});
+
+/* ============================================================
+   ВЫБОР СЕТИ → обновление блока оплаты
+   ============================================================ */
+function selectNetwork(id) {
+  const net = state.networks.find((n) => n.id === id);
+  if (!net) return;
+  state.selected = net;
+
+  // Подсветка карточки и пункт дропдауна
+  els.cardsGrid.querySelectorAll(".card").forEach((c) => c.classList.toggle("is-selected", Number(c.dataset.id) === id));
+  els.dropdownMenu.querySelectorAll(".dropdown__item").forEach((li) => {
+    const sel = Number(li.dataset.id) === id;
+    li.setAttribute("aria-selected", String(sel));
+  });
+
+  // Лейбл дропдауна: КОИН + сеть
+  els.dropdownLabel.innerHTML = `${esc(coinOf(net.network))} <span class="dropdown__label-code">${esc(net.network)}</span>`;
+
+  // Панель оплаты
+  els.paymentPlaceholder.hidden = true;
+  els.payPanel.hidden = false;
+
+  els.payLogo.src = net.logo;
+  els.payLogo.alt = net.network;
+  els.payName.textContent = net.network;
+  els.payCode.textContent = net.tier ? i18n.t(`ui.tier.${net.tier}`) : "";
+
+  els.payQr.classList.add("is-loading");
+  els.payQr.src = net.qr;
+  els.payQr.alt = `${i18n.t("html.qrAltPrefix")} ${net.network}`;
+  els.payQr.addEventListener("load", () => els.payQr.classList.remove("is-loading"), { once: true });
+  els.payQr.addEventListener("error", () => els.payQr.classList.remove("is-loading"), { once: true });
+
+  els.addressBox.value = net.address;
+
+  // Модалка тоже знает про текущую сеть
+  els.modalTitle.textContent = net.network;
+  els.modalCoin.textContent = coinOf(net.network);
+
+  toast(`${i18n.t("toast.selected")}: ${net.network}`, "success", 2400);
+
+  // Мягко подводим к блоку реквизитов (без рывка на мобильных)
+  const y = els.payPanel.getBoundingClientRect().top + window.scrollY - 90;
+  window.scrollTo({ top: y, behavior: "smooth" });
+}
+
+/* ============================================================
+   КОПИРОВАНИЕ АДРЕСА (с визуальным подтверждением)
+   ============================================================ */
+async function copyAddress(source) {
   const net = state.selected;
-  if (!net || !net.qr || !dom.qrModal) return;
-  dom.qrModalImg.src = net.qr;
-  dom.qrModalImg.alt = `${i18n.t("html.qrAltPrefix")} ${net.name}`;
-  dom.qrModalTitle.textContent = `${net.name} (${net.code})`;
-  dom.qrModalCoin.textContent = i18n.t("ui.copyAddress");
-  dom.qrModal.hidden = false;
-  document.body.style.overflow = "hidden";
-  dom.qrModalClose?.focus();
-}
+  if (!net || !net.address) { toast(i18n.t("errors.noAddress"), "error"); return; }
 
-function closeQrModal() {
-  if (!dom.qrModal || dom.qrModal.hidden) return;
-  dom.qrModal.hidden = true;
-  document.body.style.overflow = "";
-  dom.qrFrame?.focus({ preventScroll: true });
-}
-
-function initQrModal() {
-  dom.qrFrame?.addEventListener("click", openQrModal);
-  dom.qrFrame?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openQrModal(); }
-  });
-  dom.qrModalBackdrop?.addEventListener("click", closeQrModal);
-  dom.qrModalClose?.addEventListener("click", closeQrModal);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeQrModal(); });
-
-  // Копирование адреса прямо из модалки
-  dom.qrModalCopy?.addEventListener("click", async () => {
-    const text = dom.addressBox?.value;
-    if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast(i18n.t("toast.copied"), "success", 2200);
-    } catch {
-      showToast(i18n.t("toast.copyFailed"), "error", 4000);
-    }
-  });
-}
-
-/* ---------- 9.7 ПРОЧИЕ ЭФФЕКТЫ НОВОГО ДИЗАЙНА ---------- */
-
-/** Плавный count-up числа в hero-статистике */
-function animateCounter(el, to, duration = 1200) {
-  if (!el) return;
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = String(to); return; }
-  const start = performance.now();
-  const from = Number(el.textContent) || 0;
-  const step = (now) => {
-    const p = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
-    el.textContent = String(Math.round(from + (to - from) * eased));
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-/* ---------- 12. ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ ---------- */
-
-/** Обновление полосы прогресса скролла (общий обработчик для scroll-событий) */
-function updateScrollProgressBar() {
-  const bar = dom.scrollProgress;
-  if (!bar) return;
-  const doc = document.documentElement;
-  const max = doc.scrollHeight - doc.clientHeight;
-  bar.style.width = `${max > 0 ? (doc.scrollTop / max) * 100 : 0}%`;
-}
-
-/**
- * Единый window-scroll: полоса прогресса + параллакс орбов фона.
- * Параллакс отключается при prefers-reduced-motion.
- */
-function onWindowScroll() {
-  updateScrollProgressBar();
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const y = window.scrollY;
-  document.querySelectorAll(".bg-orb").forEach((el, i) => {
-    el.style.translate = `0 ${y * (i % 2 === 0 ? -0.04 : 0.03)}px`;
-  });
-}
-
-/** Тонкая градиентная полоса прогресса скролла под верхним краем окна */
-function initScrollProgress() {
-  if (!dom.scrollProgress) return;
-  document.addEventListener("scroll", onWindowScroll, { passive: true });
-  onWindowScroll();
-}
-
-/* ---------- 10. КОПИРОВАНИЕ АДРЕСА ---------- */
-
-/** Возвращает кнопку копирования в исходное состояние */
-function resetCopyButton() {
-  dom.copyBtn.classList.remove("is-copied");
-  dom.copyBtnText.textContent = i18n.t("html.copyBtn");
-}
-
-/**
- * Копирует адрес в буфер обмена с визуальным подтверждением.
- * Использует современный Clipboard API с fallback на execCommand
- * для старых браузеров / небезопасного контекста (http).
- */
-async function copyAddress() {
-  const text = dom.addressBox.value;
-  if (!text) return;
-
-  let copied = false;
-
+  let ok = false;
   try {
     if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      copied = true;
+      await navigator.clipboard.writeText(net.address);
+      ok = true;
     } else {
-      // Fallback: выделяем readonly-текстареа и просим браузер скопировать
-      dom.addressBox.select();
-      copied = document.execCommand("copy");
-      window.getSelection()?.removeAllRanges();
+      // Fallback для http/старых браузеров: временная textarea + execCommand
+      const ta = document.createElement("textarea");
+      ta.value = net.address;
+      ta.setAttribute("readonly", "");
+      ta.className = "visually-hidden-copy";
+      document.body.appendChild(ta);
+      ta.select();
+      ok = document.execCommand("copy");
+      ta.remove();
     }
-  } catch (err) {
-    console.error("[CryptoPulse] Ошибка копирования:", err);
-    copied = false;
+  } catch (e) {
+    console.warn("[CryptoPulse] Clipboard API недоступен:", e);
   }
 
-  if (copied) {
-    // Визуальное подтверждение: кнопка меняет вид на 2 секунды
-    dom.copyBtn.classList.add("is-copied");
-    dom.copyBtnText.textContent = i18n.t("html.copiedBtn");
-    showToast(i18n.t("toast.copied"), "success", 2500);
-    setTimeout(resetCopyButton, 2000);
+  if (ok) {
+    toast(i18n.t("toast.copied"), "success", 2200);
+    flashCopied(source);
   } else {
-    showToast(i18n.t("toast.copyFailed"), "error", 5000);
+    toast(i18n.t("errors.copyFailed"), "error", 4200);
   }
 }
 
-dom.copyBtn.addEventListener("click", copyAddress);
-
-/* ---------- 11. ФОРМА «Я ОПЛАТИЛ / УВЕДОМИТЬ» ---------- */
-
-/**
- * Валидация формы перед отправкой.
- * @returns {boolean} валидна ли форма
- */
-function validateForm() {
-  let valid = true;
-  const rawAmount = dom.amountInput.value.trim();
-
-  // Сумма опциональна, но если указана — должна быть положительным числом
-  [dom.amountInput, dom.commentInput].forEach((el) => el.classList.remove("input--invalid"));
-
-  if (rawAmount !== "") {
-    const amount = Number(rawAmount);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      dom.amountInput.classList.add("input--invalid");
-      showToast(i18n.t("errors.positiveAmount"), "error");
-      valid = false;
-    }
-  }
-
-  if (!state.selected) {
-    showToast(i18n.t("errors.selectFirst"), "error");
-    valid = false;
-  }
-
-  return valid;
+/** Визуальное подтверждение: галочка + зелёная кнопка на 1.8 c */
+let copyTimer = null;
+function flashCopied(source) {
+  const btn = source === "modal" ? els.modalCopy : els.copyBtn;
+  const original = els.copyBtnText.textContent;
+  els.copyBtn.classList.add("is-copied");
+  els.copyBtnText.textContent = i18n.t("html.copiedBtn");
+  if (source === "modal") btn.classList.add("is-copied");
+  clearTimeout(copyTimer);
+  copyTimer = setTimeout(() => {
+    els.copyBtn.classList.remove("is-copied");
+    els.copyBtnText.textContent = original;
+    btn.classList.remove("is-copied");
+  }, 1800);
 }
 
-/**
- * Отправка POST-запроса на бэкенд с JSON:
- * { network, amount, comment, address }
- */
-async function submitNotification(event) {
-  event.preventDefault();
+els.copyBtn.addEventListener("click", () => copyAddress("panel"));
+els.modalCopy.addEventListener("click", () => copyAddress("modal"));
 
-  if (!validateForm()) return;
+/* ============================================================
+   МОДАЛКА QR (увеличение при клике)
+   ============================================================ */
+function openModal() {
+  if (!state.selected) return;
+  els.modalImg.src = state.selected.qr;
+  els.modalImg.alt = `${i18n.t("html.qrAltPrefix")} ${state.selected.network}`;
+  els.modalTitle.textContent = state.selected.network;
+  els.modalCoin.textContent = coinOf(state.selected.network);
+  els.modal.hidden = false;
+  document.documentElement.classList.add("no-scroll");
+  els.modalClose.focus();
+}
+function closeModal() {
+  if (els.modal.hidden) return;
+  els.modal.hidden = true;
+  document.documentElement.classList.remove("no-scroll");
+}
+
+els.qrFrame.addEventListener("click", openModal);
+els.qrFrame.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(); } });
+els.modalClose.addEventListener("click", closeModal);
+els.modalBackdrop.addEventListener("click", closeModal);
+
+/* ============================================================
+   ФОРМА «Я ОПЛАТИЛ» → POST {network, amount, comment, address}
+   ============================================================ */
+els.notifyForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const net = state.selected;
+
+  if (!net) { toast(i18n.t("errors.selectFirst"), "error"); return; }
+
+  const rawAmount = els.amountInput.value.trim();
+  const amount = rawAmount === "" ? null : Number(rawAmount);
+  if (amount !== null && (!Number.isFinite(amount) || amount < 0)) {
+    els.amountInput.classList.add("input--invalid");
+    toast(i18n.t("errors.positiveAmount"), "error");
+    return;
+  }
+  els.amountInput.classList.remove("input--invalid");
 
   const payload = {
-    network: state.selected.code,                                  // код сети, напр. "BTC"
-    amount:  dom.amountInput.value.trim() === ""                   // пустая сумма -> null
-               ? null
-               : Number(dom.amountInput.value.trim()),
-    comment: dom.commentInput.value.trim(),                        // может быть ""
-    address: state.selected.address,                               // адрес выбранной сети
+    network: net.network,
+    amount: amount,                       // null, если не указана
+    comment: els.commentInput.value.trim(),
+    address: net.address,
   };
 
-  // Состояние загрузки кнопки
-  dom.submitBtn.disabled = true;
-  dom.submitBtn.classList.add("is-loading");
-  const label = dom.submitBtn.querySelector(".btn__label");
-  const originalLabel = label.textContent;
-  label.textContent = i18n.t("html.sendingBtn");
-
+  setLoading(true);
   try {
-    const response = await fetchWithTimeout(NOTIFY_API_URL, {
+    // AbortController = кросс-браузерный таймаут запроса
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+    const res = await fetch(NOTIFY_API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: ctrl.signal,
     });
+    clearTimeout(timer);
 
-    if (!response.ok) {
-      throw new Error(i18n.t("errors.serverStatus", { code: response.status }));
-    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    // Успех: чистим поля формы, оставляем выбранную сеть
-    showToast(i18n.t("toast.sent"), "success", 5000);
-    dom.notifyForm.reset();
-  } catch (error) {
-    console.error("[CryptoPulse] Ошибка отправки уведомления:", error);
-
-    const isAbort = error.name === "AbortError";
-    showToast(
-      isAbort ? i18n.t("toast.sendTimeout") : i18n.t("toast.sendFailed", { message: error.message }),
-      "error",
-      6000
-    );
+    toast(i18n.t("toast.sent"), "success", 5000);
+    els.notifyForm.reset();
+  } catch (err) {
+    console.error("[CryptoPulse] Ошибка отправки:", err);
+    const msg = err.name === "AbortError" ? i18n.t("errors.timeout") : i18n.t("errors.sendFailed");
+    toast(msg, "error", 5200);
   } finally {
-    // Сброс состояния кнопки в любом случае
-    dom.submitBtn.disabled = false;
-    dom.submitBtn.classList.remove("is-loading");
-    label.textContent = originalLabel;
-  }
-}
-
-dom.notifyForm.addEventListener("submit", submitNotification);
-
-/* ---------- 12. ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ---------- */
-
-/** Читает сохранённую тему из localStorage и применяет её */
-function applySavedTheme() {
-  const saved = localStorage.getItem("cp-theme");
-  if (saved === "light") document.documentElement.setAttribute("data-theme", "light");
-}
-
-dom.themeToggle.addEventListener("click", () => {
-  // Разрешаем CSS-crossfade только после первого клика (не при загрузке)
-  document.documentElement.classList.add("cp-theme-anim");
-
-  // Если сейчас активна светлая тема — возвращаем тёмную, иначе — включаем светлую
-  const nowLight = document.documentElement.getAttribute("data-theme") === "light";
-
-  if (nowLight) {
-    document.documentElement.removeAttribute("data-theme");
-    localStorage.setItem("cp-theme", "dark");
-  } else {
-    document.documentElement.setAttribute("data-theme", "light");
-    localStorage.setItem("cp-theme", "light");
+    setLoading(false);
   }
 });
 
-/* ---------- 12.5 ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА (UI-слой над i18n) ---------- */
+/** Состояние кнопки «отправка…»: спиннер + блокировка */
+function setLoading(on) {
+  els.submitBtn.disabled = on;
+  els.submitBtn.classList.toggle("is-loading", on);
+  els.submitLabel.textContent = on ? i18n.t("html.sendingBtn") : i18n.t("html.submitBtn");
+}
 
-/** Один тик часов: HH:MM:SS в формате активного языка */
+/* ============================================================
+   ТЕМА (тёмная по умолчанию ↔ светлая) + БЛОКИРОВКА СКРОЛЛА
+   ============================================================ */
+const THEME_KEY = "cp-theme";
+
+/* Скролл страницы блокируется, когда открыта модалка (класс на <html>) */
+document.documentElement.classList.toggle("no-scroll", !els.modal.hidden);
+
+function applyTheme(theme, animate = false) {
+  if (animate) document.body.classList.add("cp-theme-anim");
+  document.documentElement.dataset.theme = theme;
+  els.themeToggle.setAttribute("aria-checked", String(theme === "light"));
+  els.themeToggle.setAttribute("aria-label", i18n.t(theme === "light" ? "html.themeToDark" : "html.themeToLight"));
+  try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+}
+
+els.themeToggle.addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(next, true);
+  setTimeout(() => document.body.classList.remove("cp-theme-anim"), 600);
+});
+
+/* ============================================================
+   ЧАСЫ в статус-баре + прогресс скролла + footer year
+   ============================================================ */
 function tickClock() {
-  if (!dom.clockTicker) return;
-  dom.clockTicker.textContent = new Date().toLocaleTimeString(i18n.intl, { hour12: false });
+  els.clockTicker.textContent = new Date().toLocaleTimeString(i18n.locale(), { hour12: false });
 }
 
-/** Подсветка активной кнопки языка + aria-атрибуты */
+function onScrollProgress() {
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - doc.clientHeight;
+  const p = max > 0 ? (doc.scrollTop / max) * 100 : 0;
+  // CSP-safe: ширина полосы — через CSS custom property, не inline-стиль
+  els.scrollProgress.style.setProperty("--p", `${p}%`);
+}
+
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА + ГОД В ФУТЕРЕ
+   ============================================================ */
+
+/** Подставляет текущий год в строки футера вида "© {year}" */
+function fillYear() {
+  document.querySelectorAll("[data-year]").forEach((el) => {
+    el.textContent = el.getAttribute("data-year").replace("{year}", String(new Date().getFullYear()));
+  });
+}
+
+els.langSwitch.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".lang-btn");
+  if (!btn || btn.classList.contains("is-active")) return;
+  await i18n.setLang(btn.dataset.lang);
+});
+
 function syncLangButtons() {
-  document.querySelectorAll(".lang-btn").forEach((btn) => {
-    const active = btn.dataset.lang === i18n.lang;
-    btn.classList.toggle("is-active", active);
-    btn.setAttribute("aria-pressed", String(active));
+  els.langSwitch.querySelectorAll(".lang-btn").forEach((b) => {
+    const active = b.dataset.lang === i18n.lang;
+    b.classList.toggle("is-active", active);
+    b.setAttribute("aria-pressed", String(active));
   });
 }
 
-/** Клик по кнопке 🇷🇺/🇺🇸/🇨🇳/🇯🇵/🇪🇸/🇩🇪 — меняем язык всего интерфейса */
-function initLangSwitch() {
-  document.querySelectorAll(".lang-btn").forEach((btn) => {
-    btn.addEventListener("click", () => i18n.setLang(btn.dataset.lang));
-  });
-}
-
-/* ---------- 13. ИНИЦИАЛИЗАЦИЯ ---------- */
-
-/** Точка входа */
-async function main() {
-  applySavedTheme();
-
-  // Локализация: инициализация модуля i18n (язык → словарь → перевод страницы)
-  initLangSwitch();
-  await i18n.init();
-
-  /* Реакция UI на смену языка: динамические списки, статус, часы, панель оплаты.
-     Статичная разметка переводится внутри i18n.applyToDOM() до этого колбэка. */
-  i18n.onChange(() => {
-    syncLangButtons();
-    buildTierChips();   // чипы «ВСЕ/CORE/…» переводятся
-    refreshLists();     // карточки, dropdown, счётчик, aria-атрибуты
-    if (state.status) setStatus(state.status); // статус-строка hero
-    if (state.selected) syncPaymentPanel();    // alt/label панели выбранной сетью
-    tickClock();        // часы в локализованном формате
-  });
-
+/* При смене языка перерисовываем весь динамический UI */
+i18n.onChange(() => {
   syncLangButtons();
-  tickClock();
-
-  // Появление секций и карточек при скролле (scroll reveal)
-  if ("IntersectionObserver" in window) {
-    const secIo = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          secIo.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.08 });
-    document.querySelectorAll(".section, .reveal").forEach((el) => secIo.observe(el));
-
-    // Карточки карусели: появление по мере прокрутки трека (каскад через --delay)
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: "0px 400px" });
-
-    const gridEl = dom.cardsGrid;
-    new MutationObserver(() => {
-      gridEl.querySelectorAll(".card:not(.is-visible)").forEach((el, i) => {
-        el.style.setProperty("--delay", `${Math.min(i * 35, 600)}ms`);
-        io.observe(el);
-      });
-    }).observe(gridEl, { childList: true });
-  } else {
-    // Нет поддержки — сразу всё видимо (анимации не блокируют контент)
-    document.querySelectorAll(".reveal, .card").forEach((el) => el.classList.add("is-visible"));
+  fillYear();
+  els.themeToggle.setAttribute("aria-label", i18n.t(document.documentElement.dataset.theme === "light" ? "html.themeToDark" : "html.themeToLight"));
+  if (state.loadError) { setStatus("error", "errors.checkConnection"); renderLoadError(); return; }
+  if (!state.networks.length) return;
+  buildTierChips();
+  renderAll();
+  if (state.selected) {
+    els.payCode.textContent = i18n.t(`ui.tier.${state.selected.tier}`);
+    els.payQr.alt = `${i18n.t("html.qrAltPrefix")} ${state.selected.network}`;
+    els.dropdownLabel.innerHTML = `${esc(coinOf(state.selected.network))} <span class="dropdown__label-code">${esc(state.selected.network)}</span>`;
   }
+  setStatus(state.loadError ? "error" : "ok", state.loadError ? "errors.checkConnection" : "status.online");
+});
 
-  // Хоткей "/" — фокус на поиск (как в GitHub / неактивных полях)
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName ?? "")) {
-      e.preventDefault();
-      dom.searchInput.focus();
-    }
-  });
-
-  // Живые часы в статус-строке — «терминальный» тик (формат активного языка)
-  if (dom.clockTicker) {
-    tickClock();
-    setInterval(tickClock, 1000);
-  }
-
-  // Механика нового дизайна: карусель, модалка QR, прогресс скролла
-  initCarousel();
-  initQrModal();
-  initScrollProgress();
-
-  // Если данные уже есть в кеше браузера — fetch вернёт их мгновенно
-  loadNetworks();
+/* ============================================================
+   SCROLL REVEAL для секций
+   ============================================================ */
+function initReveal() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 }
 
-/* ---------- 14. БУТСТРАП (script defer — DOM гарантированно готов) ---------- */
-main().catch((err) => console.error("[CryptoPulse] Ошибка инициализации:", err));
+/* ============================================================
+   INIT
+   ============================================================ */
+(async function init() {
+  // Тема до первого paint-перехода
+  let savedTheme = "dark";
+  try { savedTheme = localStorage.getItem(THEME_KEY) || "dark"; } catch (_) {}
+  applyTheme(savedTheme === "light" ? "light" : "dark", false);
+
+  // Год в футере
+  fillYear();
+
+  // Локализация (RU default) + UI
+  await i18n.init();
+  syncLangButtons();
+
+  // Живые элементы
+  tickClock();
+  setInterval(tickClock, 1000);
+  window.addEventListener("scroll", onScrollProgress, { passive: true });
+  onScrollProgress();
+  initReveal();
+
+  // Данные кошельков
+  await loadNetworks();
+})();
