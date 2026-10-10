@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <!-- ============================================================
+       META / БАЗОВЫЕ НАСТРОЙКИ
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Crypto Pulse — приём крипто-донатов в 80+ сетях. Быстро, анонимно, без посредников.">
+  <title>CRYPTO PULSE // Донат-терминал</title>
+
+  <!-- Шрифты: Orbitron — техно-заголовки, JetBrains Mono — адреса/код, Inter — текст -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       ФОНОВЫЕ ЭЛЕМЕНТЫ (декорации киберпанк/tech-grunge)
+       ============================================================ -->
+  <div class="bg-grid" aria-hidden="true"></div>   <!-- перспективная сетка -->
+  <div class="bg-glow bg-glow--cyan" aria-hidden="true"></div>   <!-- циановое свечение -->
+  <div class="bg-glow bg-glow--indigo" aria-hidden="true"></div> <!-- индиго-свечение -->
+  <div class="bg-scanline" aria-hidden="true"></div>              <!-- скан-линия CRT -->
+  <span class="bg-hex bg-hex--1" aria-hidden="true"></span>      <!-- геометрические шестиугольники -->
+  <span class="bg-hex bg-hex--2" aria-hidden="true"></span>
+  <span class="bg-hex bg-hex--3" aria-hidden="true"></span>
+
+  <!-- ============================================================
+       ШАПКА
+       ============================================================ -->
+  <header class="site-header">
+    <div class="logo">
+      <span class="logo__mark" aria-hidden="true">&#x25C6;</span>
+      CRYPTO<span class="logo__accent">PULSE</span>
+    </div>
+    <nav class="site-nav" aria-label="Навигация по секциям">
+      <a href="#networks">Сети</a>
+      <a href="#payment">Оплата</a>
+      <a href="#footer">Контакты</a>
+    </nav>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить светлую тему">
+      <span class="theme-toggle__dot" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <main class="page">
+
+    <!-- ==========================================================
+         HERO — заголовок + статус подключения к сети
+     ========================================================== -->
+    <section class="hero">
+      <p class="hero__tag">// DONATION TERMINAL v2.0</p>
+      <h1 class="hero__title glitch" data-text="SUPPORT THE FUTURE">SUPPORT THE FUTURE</h1>
+      <p class="hero__subtitle">
+        Выбери сеть, отсканируй QR, переведи донат.<br>
+        <span class="accent">80+ блокчейнов.</span> Ноль комиссий сервиса. Полная свобода.
+      </p>
+      <div class="status-line">
+        <span id="statusDot" class="status-dot status-dot--loading" aria-hidden="true"></span>
+        <span id="statusText" class="status-text">Загрузка данных сетей…</span>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         СЕКЦИЯ «СЕТИ» — поиск + выпадающий список + сетка карточек
+     ========================================================== -->
+    <section id="networks" class="section">
+      <h2 class="section__title"><span class="hash">#</span>ВЫБЕРИ СЕТЬ</h2>
+
+      <!-- Живой поиск по названию/коду сети -->
+      <input
+        type="text"
+        id="searchInput"
+        class="search"
+        placeholder="&#x2315;&nbsp; Поиск сети… (BTC, ETH, TON…)"
+        autocomplete="off"
+        aria-label="Поиск криптовалютной сети"
+      >
+
+      <!-- Кастомный стильный выпадающий список (combobox) -->
+      <div class="dropdown" id="networkDropdown">
+        <button class="dropdown__toggle" id="dropdownToggle" type="button"
+                aria-haspopup="listbox" aria-expanded="false">
+          <span class="dropdown__label" id="dropdownLabel">— выберите сеть —</span>
+          <span class="dropdown__arrow" aria-hidden="true">&#x25BE;</span>
+        </button>
+        <ul class="dropdown__menu" id="dropdownMenu" role="listbox" tabindex="-1"
+            aria-label="Список доступных сетей"></ul>
+      </div>
+
+      <!-- Сетка карточек сетей -->
+      <div class="cards-grid" id="cardsGrid" aria-label="Карточки криптовалютных сетей">
+        <!-- JS-шаблон карточки (используется как образец при рендере) -->
+        <template id="cardTemplate">
+          <article class="card" tabindex="0" role="button">
+            <div class="card__corner card__corner--tl" aria-hidden="true"></div>
+            <div class="card__corner card__corner--br" aria-hidden="true"></div>
+            <img class="card__logo" src="" alt="" loading="lazy"
+                 onerror="this.style.visibility='hidden'">
+            <h3 class="card__name"></h3>
+            <span class="card__code"></span>
+          </article>
+        </template>
+
+        <!-- Скелетоны на время загрузки -->
+        <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
+        <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
+        <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
+        <div class="skeleton-card"><span class="skeleton skeleton--circle"></span><span class="skeleton skeleton--line"></span><span class="skeleton skeleton--line skeleton--short"></span></div>
+      </div>
+    </section>
+
+    <!-- ==========================================================
+         СЕКЦИЯ «ОПЛАТА» — QR, адрес, копирование, форма уведомления
+     ========================================================== -->
+    <section id="payment" class="section payment" aria-live="polite">
+      <h2 class="section__title"><span class="hash">#</span>РЕКВИЗИТЫ</h2>
+
+      <!-- Плейсхолдер, пока сеть не выбрана -->
+      <div class="payment__placeholder" id="paymentPlaceholder">
+        <span class="payment__placeholder-icon" aria-hidden="true">&#x29D6;</span>
+        Сначала выбери сеть выше — здесь появятся QR-код и адрес кошелька.
+      </div>
+
+      <!-- Основной блок оплаты (скрыт до выбора сети) -->
+      <div class="pay-panel" id="payPanel" hidden>
+        <div class="pay-panel__grid">
+
+          <!-- Левая колонка: логотип + QR -->
+          <div class="pay-panel__visual">
+            <div class="pay-panel__chain">
+              <img id="payLogo" class="pay-panel__logo" src="" alt="">
+              <div>
+                <p class="pay-panel__network" id="payName"></p>
+                <p class="pay-panel__code" id="payCode"></p>
+              </div>
+            </div>
+            <div class="qr-frame">
+              <img id="payQr" class="qr-frame__img" src="" alt="QR-код для перевода" loading="lazy">
+            </div>
+          </div>
+
+          <!-- Правая колонка: адрес + форма -->
+          <div class="pay-panel__data">
+            <label class="field-label" for="addressBox">АДРЕС КОШЕЛЬКА</label>
+            <textarea id="addressBox" class="address-box" readonly rows="3"
+                      aria-label="Адрес кошелька выбранной сети"></textarea>
+
+            <button id="copyBtn" class="btn btn--copy" type="button">
+              <svg class="btn__icon" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                   stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="9" y="9" width="12" height="12" rx="2"></rect>
+                <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+              </svg>
+              <span id="copyBtnText">Копировать адрес</span>
+            </button>
+
+            <hr class="divider" aria-hidden="true">
+
+            <!-- Форма уведомления бэкенда об оплате -->
+            <form id="notifyForm" class="notify-form" novalidate>
+              <div class="notify-form__row">
+                <div class="field">
+                  <label class="field-label" for="amountInput">СУММА <span class="optional">(опционально)</span></label>
+                  <input type="number" id="amountInput" class="input" name="amount"
+                         min="0" step="any" inputmode="decimal" placeholder="0.00" autocomplete="off">
+                </div>
+                <div class="field field--grow">
+                  <label class="field-label" for="commentInput">КОММЕНТАРИЙ <span class="optional">(опционально)</span></label>
+                  <input type="text" id="commentInput" class="input" name="comment"
+                         maxlength="200" placeholder="Например: спасибо за проект!" autocomplete="off">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn--submit" id="submitBtn">
+                <span class="btn__label">Я оплатил / Уведомить &#x26A1;</span>
+                <span class="btn__spinner" aria-hidden="true"></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================
+       ПОДВАЛ
+       ============================================================ -->
+  <footer id="footer" class="site-footer">
+    <p>CRYPTO PULSE &copy; <span id="year"></span> — сделано во имя децентрализации.</p>
+    <p class="site-footer__hint">Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы.</p>
+  </footer>
+
+  <!-- Контейнер toast-уведомлений (стильные всплывающие сообщения) -->
+  <div id="toastContainer" class="toasts" aria-live="assertive" aria-atomic="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
