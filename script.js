@@ -9,26 +9,13 @@
 
 /* ---------- 1. КОНФИГУРАЦИЯ ---------- */
 
-/* URL бэкенда для уведомлений об оплате.
-   GitHub Pages не поддерживает переменные окружения, поэтому
-   это просто константа — поменяй домен на свой перед деплоем. */
-<<<<<<< HEAD
-const NOTIFY_API_URL = "https://donati77.mooo.com/api/crypto-notify"; // домен контейнера (nginx -> FastAPI /api/crypto-notify)
+/* URL бэкенда для уведомлений об оплате. */
+const NOTIFY_API_URL = "https://donati77.mooo.com/api/crypto-notify";
 
-/* Пути к данным с адресами (по пробованы оба варианта имени файла).
-   GitHub Pages отдаёт 404 для строк из README.md, поэтому основной вариант —
-   чистый JSON-файл crypto/addresses.json; запасной — историческое имя
-   "adresses.json" (без буквы s), которое ранее лежало в репозитории.
-   Относительные пути работают и на GitHub Pages (/repo/), и локально. */
-const DATA_URL_CANDIDATES = ["crypto/addresses.json", "crypto/adresses.json"];
-=======
-const NOTIFY_API_URL = "https://donati77.mooo.com/api/crypto-notify"; // путь совпадает с эндпоинтом из api/server.js
-
-/* Путь к данным с адресами. Файл лежит в папке /crypto рядом с index.html.
-   ВНИМАНИЕ: в репозитории файл называется "adresses.json" (без буквы s),
-   а не "addresses.json", как в ТЗ — путь ниже соответствует реальному файлу. */
+/* Путь к данным с адресами. 
+   ВНИМАНИЕ: Убедитесь, что файл лежит по пути crypto/addresses.json 
+   (или измените имя файла здесь, если у вас adresses.json без двойной s) */
 const DATA_URL = "crypto/addresses.json";
->>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
 
 /* Таймаут запроса к бэкенду, мс */
 const REQUEST_TIMEOUT_MS = 15000;
@@ -72,9 +59,7 @@ const dom = {
 /* ---------- 4. УТИЛИТЫ ---------- */
 
 /**
- * Безопасное экранирование HTML (все данные из JSON вставляются через него).
- * @param {string} str - произвольная строка
- * @returns {string} строка без опасных символов
+ * Безопасное экранирование HTML.
  */
 function escapeHtml(str) {
   return String(str ?? "")
@@ -87,8 +72,6 @@ function escapeHtml(str) {
 
 /**
  * Показ статус-индикатора в hero-секции.
- * @param {"loading"|"ok"|"error"} type
- * @param {string} text
  */
 function setStatus(type, text) {
   dom.statusDot.className = "status-dot status-dot--" + type;
@@ -97,9 +80,6 @@ function setStatus(type, text) {
 
 /**
  * Стильные всплывающие toast-уведомления.
- * @param {string} message - текст
- * @param {"success"|"error"|"info"} [type="info"]
- * @param {number} [duration=3500] - время показа, мс
  */
 function showToast(message, type = "info", duration = 3500) {
   const icons = { success: "✔", error: "✖", info: "ℹ" };
@@ -109,7 +89,6 @@ function showToast(message, type = "info", duration = 3500) {
   toast.innerHTML = `<span class="toast__icon">${icons[type]}</span><span>${escapeHtml(message)}</span>`;
   dom.toastContainer.appendChild(toast);
 
-  // Автоскрытие с анимацией выхода
   setTimeout(() => {
     toast.classList.add("is-hiding");
     toast.addEventListener("animationend", () => toast.remove(), { once: true });
@@ -118,9 +97,6 @@ function showToast(message, type = "info", duration = 3500) {
 
 /**
  * Fetch с таймаутом через AbortController.
- * @param {string} url
- * @param {RequestInit} options
- * @returns {Promise<Response>}
  */
 async function fetchWithTimeout(url, options = {}) {
   const controller = new AbortController();
@@ -135,55 +111,20 @@ async function fetchWithTimeout(url, options = {}) {
 /* ---------- 5. ЗАГРУЗКА ДАННЫХ (addresses.json) ---------- */
 
 /**
-<<<<<<< HEAD
- * Пробует загрузить JSON по очереди из DATA_URL_CANDIDATES.
- * Возвращает первый успешный ответ; если все 404 — бросает ошибку.
- */
-async function fetchNetworksJson() {
-  let lastError = null;
-
-  for (const url of DATA_URL_CANDIDATES) {
-    try {
-      const response = await fetch(url, { cache: "no-store" }); // no-store — чтобы свежий файл не кэшировался браузером
-
-      if (!response.ok) {
-        lastError = new Error(`HTTP ${response.status}: ${url}`);
-        continue; // пробуем следующий вариант имени файла
-      }
-
-      // GitHub Pages может отдать HTML-страницу 404 с кодом 200 (крайне редко),
-      // поэтому дополнительно проверяем содержимое через response.json() ниже.
-      return await response.json();
-    } catch (error) {
-      lastError = error; // сеть/битый JSON — пробуем следующий кандидат
-    }
-  }
-
-  throw lastError ?? new Error("Не удалось загрузить данные сетей");
-}
-
-/**
-=======
->>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
  * Асинхронно подгружает JSON со списком сетей и запускает рендер.
- * Обрабатывает сетевые ошибки, HTTP-ошибки и битый JSON.
  */
 async function loadNetworks() {
   state.loading = true;
   setStatus("loading", "Загрузка данных сетей…");
 
   try {
-<<<<<<< HEAD
-    const data = await fetchNetworksJson();
-=======
-    const response = await fetch(DATA_URL);
+    const response = await fetch(DATA_URL, { cache: "no-store" });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: не удалось загрузить ${DATA_URL}`);
     }
 
     const data = await response.json();
->>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
 
     // Поддержка двух форматов: массив объектов OR объект вида { networks: [...] }
     const list = Array.isArray(data) ? data : (Array.isArray(data.networks) ? data.networks : null);
@@ -200,10 +141,7 @@ async function loadNetworks() {
       address: String(net.address ?? ""),
       qr: net.qr ? `crypto/${String(net.qr).replace(/^\.?\//, "")}` : "",
       img: net.img ? `crypto/${String(net.img).replace(/^\.?\//, "")}` : "",
-<<<<<<< HEAD
-      tier: String(net.tier ?? "l1"), // тир сети для группировки карточек (core/evm/l1/privacy/meme)
-=======
->>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
+      tier: String(net.tier ?? "l1"), // тир сети для группировки карточек
     }));
 
     renderCards(state.networks);
@@ -229,7 +167,6 @@ async function loadNetworks() {
 
 /**
  * Замена сетки карточек на сообщение об ошибке с кнопкой «Повторить».
- * @param {string} message
  */
 function renderLoadError(message) {
   dom.cardsGrid.innerHTML = `
@@ -248,7 +185,6 @@ function renderLoadError(message) {
 
 /**
  * Отрисовывает сетку карточек из переданного списка сетей.
- * @param {Array} list - фильтрованный или полный список
  */
 function renderCards(list) {
   // Удаляем скелетоны/старые карточки, оставляя только <template>
@@ -266,7 +202,7 @@ function renderCards(list) {
   const fragment = document.createDocumentFragment();
 
   list.forEach((net) => {
-    // Клонируем карточку из <template> — быстрый и безопасный способ
+    // Клонируем карточку из <template>
     const node = dom.cardTemplate.content.cloneNode(true);
     const card = node.querySelector(".card");
 
@@ -278,14 +214,13 @@ function renderCards(list) {
       logo.src = net.img;
       logo.alt = `Логотип ${net.name}`;
     } else {
-      logo.remove(); // если логотипа нет — не показываем битую картинку
+      logo.remove();
     }
 
     node.querySelector(".card__name").textContent = net.name;
     node.querySelector(".card__code").textContent = net.code;
 
-<<<<<<< HEAD
-    // Бейдж тира сети (CORE / EVM / L1 / PRIVACY / MEME) — «прикольная» группировка
+    // Бейдж тира сети (CORE / EVM / L1 / PRIVACY / MEME)
     const TIER_LABELS = { core: "CORE", evm: "EVM", l1: "L1", privacy: "PRIVACY", meme: "MEME" };
     const badge = node.querySelector(".card__tier");
     if (badge) {
@@ -293,8 +228,6 @@ function renderCards(list) {
       badge.dataset.tier = net.tier;
     }
 
-=======
->>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
     // Клик и Enter/Space выбирают сеть
     card.addEventListener("click", () => selectNetwork(net));
     card.addEventListener("keydown", (e) => {
@@ -317,7 +250,6 @@ function renderCards(list) {
 
 /**
  * Наполняет меню dropdown пунктами со списком сетей.
- * @param {Array} list
  */
 function renderDropdownItems(list) {
   dom.dropMenu.innerHTML = "";
@@ -380,7 +312,6 @@ dom.searchInput.addEventListener("input", () => {
 
 /**
  * Динамически заполняет панель: логотип, QR, адрес, подсветка карточки.
- * @param {Object} net - объект сети из state.networks
  */
 function selectNetwork(net) {
   if (!net.address) {
@@ -419,7 +350,7 @@ function selectNetwork(net) {
   // Сбрасываем состояние кнопки копирования
   resetCopyButton();
 
-  // Плавная прокрутка к панели (если она уже за пределами экрана)
+  // Плавная прокрутка к панели
   const panelTop = dom.payPanel.getBoundingClientRect().top;
   if (panelTop < 0 || panelTop > window.innerHeight * 0.7) {
     dom.payPanel.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -437,9 +368,7 @@ function resetCopyButton() {
 }
 
 /**
- * Копирует адрес в буфер обмена с визуальным подтверждением.
- * Использует современный Clipboard API с fallback на execCommand
- * для старых браузеров / небезопасного контекста (http).
+ * Копирует адрес в буфер обмена.
  */
 async function copyAddress() {
   const text = dom.addressBox.value;
@@ -452,7 +381,7 @@ async function copyAddress() {
       await navigator.clipboard.writeText(text);
       copied = true;
     } else {
-      // Fallback: выделяем readonly-текстареа и просим браузер скопировать
+      // Fallback для старых браузеров
       dom.addressBox.select();
       copied = document.execCommand("copy");
       window.getSelection()?.removeAllRanges();
@@ -463,7 +392,6 @@ async function copyAddress() {
   }
 
   if (copied) {
-    // Визуальное подтверждение: кнопка меняет вид на 2 секунды
     dom.copyBtn.classList.add("is-copied");
     dom.copyBtnText.textContent = "✓ Скопировано!";
     showToast("Адрес скопирован в буфер обмена", "success", 2500);
@@ -479,13 +407,11 @@ dom.copyBtn.addEventListener("click", copyAddress);
 
 /**
  * Валидация формы перед отправкой.
- * @returns {boolean} валидна ли форма
  */
 function validateForm() {
   let valid = true;
   const rawAmount = dom.amountInput.value.trim();
 
-  // Сумма опциональна, но если указана — должна быть положительным числом
   [dom.amountInput, dom.commentInput].forEach((el) => el.classList.remove("input--invalid"));
 
   if (rawAmount !== "") {
@@ -506,8 +432,7 @@ function validateForm() {
 }
 
 /**
- * Отправка POST-запроса на бэкенд с JSON:
- * { network, amount, comment, address }
+ * Отправка POST-запроса на бэкенд.
  */
 async function submitNotification(event) {
   event.preventDefault();
@@ -515,12 +440,12 @@ async function submitNotification(event) {
   if (!validateForm()) return;
 
   const payload = {
-    network: state.selected.code,                                  // код сети, напр. "BTC"
-    amount:  dom.amountInput.value.trim() === ""                   // пустая сумма -> null
+    network: state.selected.code,
+    amount:  dom.amountInput.value.trim() === ""
                ? null
                : Number(dom.amountInput.value.trim()),
-    comment: dom.commentInput.value.trim(),                        // может быть ""
-    address: state.selected.address,                               // адрес выбранной сети
+    comment: dom.commentInput.value.trim(),
+    address: state.selected.address,
   };
 
   // Состояние загрузки кнопки
@@ -541,7 +466,6 @@ async function submitNotification(event) {
       throw new Error(`Сервер ответил ${response.status}`);
     }
 
-    // Успех: чистим поля формы, оставляем выбранную сеть
     showToast("Уведомление отправлено — спасибо за донат! ⚡", "success", 5000);
     dom.notifyForm.reset();
   } catch (error) {
@@ -556,7 +480,6 @@ async function submitNotification(event) {
       6000
     );
   } finally {
-    // Сброс состояния кнопки в любом случае
     dom.submitBtn.disabled = false;
     dom.submitBtn.classList.remove("is-loading");
     label.textContent = originalLabel;
@@ -567,14 +490,12 @@ dom.notifyForm.addEventListener("submit", submitNotification);
 
 /* ---------- 12. ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ---------- */
 
-/** Читает сохранённую тему из localStorage и применяет её */
 function applySavedTheme() {
   const saved = localStorage.getItem("cp-theme");
   if (saved === "light") document.documentElement.setAttribute("data-theme", "light");
 }
 
 dom.themeToggle.addEventListener("click", () => {
-  // Если сейчас активна светлая тема — возвращаем тёмную, иначе — включаем светлую
   const nowLight = document.documentElement.getAttribute("data-theme") === "light";
 
   if (nowLight) {
@@ -588,12 +509,9 @@ dom.themeToggle.addEventListener("click", () => {
 
 /* ---------- 13. ИНИЦИАЛИЗАЦИЯ ---------- */
 
-/** Точка входа: запускается после полной загрузки DOM */
 function init() {
   applySavedTheme();
-  dom.year.textContent = new Date().getFullYear(); // год в подвале
-
-  // Если данные уже есть в кеше браузера — fetch вернёт их мгновенно
+  dom.year.textContent = new Date().getFullYear();
   loadNetworks();
 }
 
