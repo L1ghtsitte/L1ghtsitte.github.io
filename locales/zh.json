@@ -59,7 +59,9 @@
     "copyCoinBtn": "复制",
     "carouselPrevAria": "向左滚动",
     "carouselNextAria": "向右滚动",
-    "navHow": "运作方式"
+    "navHow": "运作方式",
+    "langAria": "界面语言",
+    "langMoreAria": "更多语言"
   },
   "status": {
     "loading": "正在加载网络数据…",

@@ -70,15 +70,8 @@
       <a href="#footer" data-i18n="html.navContacts">Контакты</a>
     </nav>
 
-    <!-- Переключатель языка: 🇷🇺 RU / 🇺🇸 EN / 🇨🇳 中 / 🇯🇵 日 / 🇪🇸 ES / 🇩🇪 DE -->
-    <div class="lang-switch" id="langSwitch" role="group" aria-label="Язык интерфейса" data-i18n-attr="aria-label:html.langAria">
-      <button class="lang-btn is-active" type="button" data-lang="ru" title="Русский" aria-label="Русский" aria-pressed="true">🇷🇺<span>RU</span></button>
-      <button class="lang-btn" type="button" data-lang="en" title="English" aria-label="English" aria-pressed="false">🇺🇸<span>EN</span></button>
-      <button class="lang-btn" type="button" data-lang="zh" title="中文" aria-label="中文" aria-pressed="false">🇨🇳<span>中</span></button>
-      <button class="lang-btn" type="button" data-lang="ja" title="日本語" aria-label="日本語" aria-pressed="false">🇯🇵<span>日</span></button>
-      <button class="lang-btn" type="button" data-lang="es" title="Español" aria-label="Español" aria-pressed="false">🇪🇸<span>ES</span></button>
-      <button class="lang-btn" type="button" data-lang="de" title="Deutsch" aria-label="Deutsch" aria-pressed="false">🇩🇪<span>DE</span></button>
-    </div>
+    <!-- Переключатель языка: кнопки генерируются из i18n в script.js (buildLangSwitch) -->
+    <div class="lang-switch" id="langSwitch" role="group" aria-label="Язык интерфейса" data-i18n-attr="aria-label:html.langAria"></div>
 
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить светлую тему" data-i18n-attr="aria-label:html.themeToggleAria">
       <span class="theme-toggle__dot" aria-hidden="true"></span>

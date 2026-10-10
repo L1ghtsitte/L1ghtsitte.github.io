@@ -59,7 +59,9 @@
     "copyCoinBtn": "コピー",
     "carouselPrevAria": "左へスクロール",
     "carouselNextAria": "右へスクロール",
-    "navHow": "仕組み"
+    "navHow": "仕組み",
+    "langAria": "表示言語",
+    "langMoreAria": "その他の言語"
   },
   "status": {
     "loading": "ネットワークデータ読み込み中…",

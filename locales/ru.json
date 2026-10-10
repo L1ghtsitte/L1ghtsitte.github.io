@@ -59,7 +59,9 @@
     "copyCoinBtn": "Скопировать",
     "carouselPrevAria": "Прокрутить назад",
     "carouselNextAria": "Прокрутить вперёд",
-    "navHow": "Как это работает"
+    "navHow": "Как это работает",
+    "langAria": "Язык интерфейса",
+    "langMoreAria": "Другие языки"
   },
   "status": {
     "loading": "Загрузка данных сетей…",

@@ -4,9 +4,10 @@
             рендер карточек → dropdown → поиск → выбор сети →
             копирование → отправка формы → toast → тема → init
 
-   CSP-safe: никаких eval/new Function, никаких inline-стилей
-   через element.style.* и document.body.style — только классы,
-   setAttribute и служебные CSS custom properties.
+   CSP-safe: никаких eval/new Function, никаких inline-обработчиков
+   (on*) и прямых записей в element.style.cssText/свойства — только
+   классы, setAttribute и СЛУЖЕБНЫЕ CSS custom properties
+   (--mx, --delay…), которые разрешены пунктом style-src 'unsafe-inline'.
    ============================================================ */
 
 "use strict";
@@ -21,11 +22,15 @@
    - подписка на смену языка: i18n.onChange(fn) — UI перерисовывается.
    ============================================================ */
 const i18n = (() => {
-  const LANGS = ["ru", "en", "zh", "ja", "es", "de"]; // первый — язык по умолчанию в разметке
+  /* Порядок = порядок кнопок в переключателе (первый — дефолт разметки) */
+  const LANGS = ["ru", "en", "uk", "zh", "ja", "es", "de"];
   const FALLBACK = "ru";
   const STORAGE_KEY = "cp-lang";
-  const INTL = { ru: "ru-RU", en: "en-US", zh: "zh-CN", ja: "ja-JP", es: "es-ES", de: "de-DE" };
-  const NAMES = { ru: "Русский", en: "English", zh: "中文", ja: "日本語", es: "Español", de: "Deutsch" };
+  const INTL = { ru: "ru-RU", en: "en-US", uk: "uk-UA", zh: "zh-CN", ja: "ja-JP", es: "es-ES", de: "de-DE" };
+  /* Флаг и короткое имя для компактных кнопок переключателя */
+  const FLAGS = { ru: "🇷🇺", en: "🇺🇸", uk: "🇺🇦", zh: "🇨🇳", ja: "🇯🇵", es: "🇪🇸", de: "🇩🇪" };
+  const SHORT = { ru: "RU", en: "EN", uk: "UA", zh: "中", ja: "日", es: "ES", de: "DE" };
+  const NAMES = { ru: "Русский", en: "English", uk: "Українська", zh: "中文", ja: "日本語", es: "Español", de: "Deutsch" };
 
   let dict = {};                 // активный словарь
   let current = FALLBACK;        // активный язык
@@ -103,6 +108,8 @@ const i18n = (() => {
   return {
     LANGS,
     names: NAMES,
+    flags: FLAGS,
+    short: SHORT,
     locale: () => INTL[current] || undefined,
     get lang() { return current; },
     /** Перевод по ключу "a.b.c" с подстановкой {vars}; fallback — en, затем сам ключ */
@@ -135,8 +142,16 @@ window.i18n = i18n; // внешний API для остальных модуле
 /** URL бэкенда для уведомлений об оплате (POST {network, amount, comment, address}) */
 const NOTIFY_API_URL = "https://api.mydomain.com/crypto-notify";
 
-/** Путь к данным кошельков (относительно корня сайта на GitHub Pages) */
+/**
+ * Путь к данным кошельков — ЕДИНСТВЕННЫЙ источник: crypto/addresses.json.
+ * Относительный путь важен для GitHub Pages (проект публикуется в /<repo>/).
+ */
 const ADDRESSES_URL = "crypto/addresses.json";
+
+/* Служебные SVG-заглушки как data:-URI (разрешены CSP: img-src 'self' data:)
+   используются, если у сети нет файла логотипа/QR в репозитории. */
+const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%230f172a' stroke='%2300f5d4' stroke-width='2.5'/%3E%3Cpath d='M32 18v28M18 32h28' stroke='%2300f5d4' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E";
+const QR_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23ffffff'/%3E%3Cg fill='%230f172a'%3E%3Crect x='8' y='8' width='16' height='16' rx='2'/%3E%3Crect x='40' y='8' width='16' height='16' rx='2'/%3E%3Crect x='8' y='40' width='16' height='16' rx='2'/%3E%3Crect x='42' y='42' width='6' height='6'/%3E%3Crect x='52' y='48' width='6' height='6'/%3E%3Crect x='46' y='52' width='6' height='6'/%3E%3C/g%3E%3C/svg%3E";
 
 /**
  * Нормализатор записи из addresses.json → внутренняя модель сети.
@@ -326,33 +341,52 @@ function refreshOnlineStatus() {
   setStatus("ok", "status.online", { count: fmtInt(state.networks.length) });
 }
 
+/* ============================================================
+   ОЧИСТКА «СПАСЁННОГО» JSON
+   Если файл был скопирован из GitHub/терминала, в него могли
+   попасть маркеры merge-конфликтов («<<<<<<< HEAD», «=======»,
+   «>>>>>>> branch») — именно они дают ошибку
+   «Unexpected token '<' / Expected property name». Удаляем
+   конфликтные блоки, оставив первую (HEAD) версию данных.
+   ============================================================ */
+function stripMergeConflictMarkers(text) {
+  const lines = text.split("\n");
+  const out = [];
+  let mode = "keep"; // keep | skip-ours | skip-theirs
+  for (const line of lines) {
+    if (/^<{7}/.test(line)) { mode = "skip-theirs"; continue; } // <<<<<<< — пропускаем до =======
+    if (/^={7}$/.test(line.trim())) { mode = "skip-ours"; continue; } // ======= — пропускаем до >>>>>>>
+    if (/^>{7}/.test(line)) { mode = "keep"; continue; }         // >>>>>>> — продолжаем обычный режим
+    if (mode === "skip-ours") continue;                          // блок после ======= выбрасываем
+    out.push(line);                                              // keep и skip-theirs (HEAD) — оставляем
+  }
+  return out.join("\n");
+}
+
 /**
  * Безопасная загрузка и парсинг JSON.
  * response.json() при битом файле бросает неинформативный SyntaxError —
- * читаем текст, чистим типовые «помехи» (BOM, comments //, /* */, trailing comma)
- * и показываем человекочитаемую ошибку с подсказкой.
+ * читаем текст как строку, чистим типовые помехи (BOM, маркеры
+ * merge-конфликтов, висячие запятые) и только потом парсим.
+ * При неустранимой ошибке — человекочитаемое сообщение с именем файла.
  */
 async function fetchJson(url) {
   const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`);
   let text = await res.text();
 
   try {
     return JSON.parse(text);
   } catch (firstErr) {
-    // Попытка спасти файл: BOM в начале, комментарии, висячие запятые
-    const cleaned = text
-      .replace(/^\uFEFF/, "")
-      .replace(/\/\*[\s\S]*?\*\//g, "")          // /* ... */
-      .replace(/^\s*(\/\/|#)[^\n]*/gm, "")       // строки-комментарии // или #
-      .replace(/,\s*([}\]])/g, "$1");            // trailing commas
+    // rescue-проход: BOM → маркеры конфликтов → trailing commas
+    const cleaned = stripMergeConflictMarkers(text.replace(/^\uFEFF/, ""))
+      .replace(/,\s*([}\]])/g, "$1");
     try {
       const data = JSON.parse(cleaned);
-      console.warn(`[CryptoPulse] «${url}» содержал мусор — автоматически очищен. Почини файл.`);
+      console.warn(`[CryptoPulse] «${url}» содержал мусор (конфликт/BOM/запятая) — автоматически очищен. Почини файл в репозитории.`);
       return data;
     } catch (_) {
-      const line = String(firstErr.message || "");
-      throw new SyntaxError(`JSON невалиден (${url}) ${line}. Проверь кавычки/запятые в файле.`);
+      throw new SyntaxError(`JSON невалиден (${url}): ${firstErr.message}. Проверь кавычки/запятые/конфликты в файле.`);
     }
   }
 }
@@ -518,7 +552,10 @@ function renderCards(list) {
     const logo = node.querySelector(".card__logo");
     logo.src = net.logo;
     logo.alt = net.network;
-    logo.addEventListener("error", () => logo.classList.add("is-missing"));
+    // Если файла логотипа нет в репозитории — CSP-safe заглушка (data: URI)
+    logo.addEventListener("error", () => {
+      if (logo.dataset.fallback !== "1") { logo.dataset.fallback = "1"; logo.src = LOGO_FALLBACK; }
+    });
 
     const tierEl = node.querySelector(".card__tier");
     tierEl.dataset.tier = net.tier;
@@ -693,6 +730,8 @@ function selectNetwork(id) {
 
   els.payLogo.src = net.logo;
   els.payLogo.alt = net.network;
+  // Заглушка, если файл логотипа сети отсутствует в репозитории
+  els.payLogo.onerror = () => { els.payLogo.onerror = null; els.payLogo.src = LOGO_FALLBACK; };
   els.payName.textContent = net.network;
   els.payCode.textContent = net.tier ? i18n.t(`ui.tier.${net.tier}`) : "";
 
@@ -700,7 +739,13 @@ function selectNetwork(id) {
   els.payQr.src = net.qr;
   els.payQr.alt = `${i18n.t("html.qrAltPrefix")} ${net.network}`;
   els.payQr.addEventListener("load", () => els.payQr.classList.remove("is-loading"), { once: true });
-  els.payQr.addEventListener("error", () => els.payQr.classList.remove("is-loading"), { once: true });
+  els.payQr.addEventListener("error", () => {
+    if (els.payQr.dataset.fallback !== "1") {
+      els.payQr.dataset.fallback = "1";
+      els.payQr.src = QR_FALLBACK; // QR-заглушка вместо битой картинки
+    }
+    els.payQr.classList.remove("is-loading");
+  }, { once: true });
 
   els.addressBox.value = net.address;
 
@@ -775,6 +820,7 @@ els.modalCopy.addEventListener("click", () => copyAddress("modal"));
 function openModal() {
   if (!state.selected) return;
   els.modalImg.src = state.selected.qr;
+  els.modalImg.onerror = () => { els.modalImg.onerror = null; els.modalImg.src = QR_FALLBACK; };
   els.modalImg.alt = `${i18n.t("html.qrAltPrefix")} ${state.selected.network}`;
   els.modalTitle.textContent = state.selected.network;
   els.modalCoin.textContent = coinOf(state.selected.network);
@@ -901,23 +947,130 @@ function fillYear() {
   });
 }
 
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА: компактный dropdown + список «ещё»
+   - первые N кнопок (LANG_VISIBLE) показаны сразу;
+   - остальные скрыты за кнопкой «···», которая открывает
+      аккуратный выпадающий список со полными названиями;
+   - активный язык всегда виден в основной полосе: если он
+     спрятан в «ещё», на его место встаёт последняя видимая
+     кнопка, а спрятанная помечается точкой-индикатором.
+   ============================================================ */
+
+const LANG_VISIBLE = 6; // сколько кнопок показано до «···»
+let langMoreOpen = false;
+
+/** Полностью перестраивает переключатель из данных i18n (единый источник правды) */
+function buildLangSwitch() {
+  const sw = els.langSwitch;
+  sw.innerHTML = "";
+  const active = i18n.lang;
+
+  /* Собираем порядок: видимые языки + активный, если он в «ещё» */
+  const visible = i18n.LANGS.slice(0, LANG_VISIBLE);
+  const hidden = i18n.LANGS.slice(LANG_VISIBLE);
+  if (hidden.includes(active)) {
+    visible.push(active);          // активный — в конец основной полосы
+    hidden.splice(hidden.indexOf(active), 1); // убираем из «ещё»
+  }
+
+  const makeBtn = (lang, inMore) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "lang-btn" + (inMore ? " lang-btn--more" : "") + (lang === active ? " is-active" : "");
+    b.dataset.lang = lang;
+    b.setAttribute("aria-pressed", String(lang === active));
+    b.title = i18n.names[lang];
+    b.setAttribute("aria-label", i18n.names[lang]);
+    b.dataset.name = i18n.names[lang]; // подпись в меню («···») через CSS ::after
+    const flag = document.createElement("span");
+    flag.className = "lang-btn__flag";
+    flag.setAttribute("aria-hidden", "true");
+    flag.textContent = i18n.flags[lang];
+    const code = document.createElement("span");
+    code.className = "lang-btn__code";
+    code.textContent = i18n.short[lang];
+    b.append(flag, code);
+    return b;
+  };
+
+  visible.forEach((l) => sw.appendChild(makeBtn(l, false)));
+
+  /* Активный язык изначально прятался в «ещё» (для точки-индикатора) */
+  const activeWasHidden = i18n.LANGS.indexOf(active) >= LANG_VISIBLE;
+
+  /* Кнопка «···» + выпадающий список остальных языков */
+  if (hidden.length) {
+    const moreWrap = document.createElement("div");
+    moreWrap.className = "lang-more";
+
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.id = "langMoreBtn";
+    moreBtn.className = "lang-btn lang-toggle-more" + (activeWasHidden ? " has-active" : "");
+    moreBtn.setAttribute("aria-haspopup", "true");
+    moreBtn.setAttribute("aria-expanded", String(langMoreOpen));
+    moreBtn.setAttribute("aria-label", i18n.t("html.langMoreAria"));
+    moreBtn.textContent = "⋯";
+    /* Точка-индикатор: активный язык живёт в меню, а не в полосе */
+    const dot = document.createElement("span");
+    dot.className = "lang-toggle-more__dot";
+    dot.setAttribute("aria-hidden", "true");
+    moreBtn.appendChild(dot);
+
+    const menu = document.createElement("div");
+    menu.className = "lang-menu" + (langMoreOpen ? " is-open" : "");
+    menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-label", i18n.t("html.langMoreAria"));
+    hidden.forEach((l) => {
+      const item = makeBtn(l, true);
+      item.setAttribute("role", "menuitem");
+      menu.appendChild(item);
+    });
+
+    moreWrap.append(moreBtn, menu);
+    sw.appendChild(moreWrap);
+  }
+}
+
+/* Клик по любому языку (в полосе или в меню) + открытие/закрытие «···» */
 els.langSwitch.addEventListener("click", async (e) => {
+  const toggle = e.target.closest(".lang-toggle-more");
+  if (toggle) {
+    langMoreOpen = !langMoreOpen;
+    toggle.setAttribute("aria-expanded", String(langMoreOpen));
+    const menu = els.langSwitch.querySelector(".lang-menu");
+    if (menu) menu.classList.toggle("is-open", langMoreOpen);
+    return;
+  }
   const btn = e.target.closest(".lang-btn");
   if (!btn || btn.classList.contains("is-active")) return;
+  langMoreOpen = false; // закрыли меню после выбора
   await i18n.setLang(btn.dataset.lang);
 });
 
-function syncLangButtons() {
-  els.langSwitch.querySelectorAll(".lang-btn").forEach((b) => {
-    const active = b.dataset.lang === i18n.lang;
-    b.classList.toggle("is-active", active);
-    b.setAttribute("aria-pressed", String(active));
-  });
-}
+/* Клик мимо переключателя и Escape — закрыть меню */
+document.addEventListener("click", (e) => {
+  if (langMoreOpen && !e.target.closest("#langSwitch")) {
+    langMoreOpen = false;
+    els.langSwitch.querySelectorAll(".lang-menu").forEach((m) => m.classList.remove("is-open"));
+    const t = els.langSwitch.querySelector(".lang-toggle-more");
+    if (t) t.setAttribute("aria-expanded", "false");
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && langMoreOpen) {
+    langMoreOpen = false;
+    els.langSwitch.querySelectorAll(".lang-menu").forEach((m) => m.classList.remove("is-open"));
+    const t = els.langSwitch.querySelector(".lang-toggle-more");
+    if (t) t.setAttribute("aria-expanded", "false");
+    if (t) t.focus();
+  }
+});
 
 /* При смене языка перерисовываем весь динамический UI */
 i18n.onChange(() => {
-  syncLangButtons();
+  buildLangSwitch();
   fillYear();
   els.themeToggle.setAttribute("aria-label", i18n.t(document.documentElement.dataset.theme === "light" ? "html.themeToDark" : "html.themeToLight"));
   if (state.loadError) { setStatus("error", "errors.checkConnection"); renderLoadError(); return; }
@@ -958,7 +1111,7 @@ function initReveal() {
 
   // Локализация (RU default) + UI
   await i18n.init();
-  syncLangButtons();
+  buildLangSwitch();
 
   // Живые элементы
   tickClock();

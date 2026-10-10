@@ -59,7 +59,9 @@
     "copyCoinBtn": "Copiar",
     "carouselPrevAria": "Desplazar a la izquierda",
     "carouselNextAria": "Desplazar a la derecha",
-    "navHow": "Cómo funciona"
+    "navHow": "Cómo funciona",
+    "langAria": "Idioma de la interfaz",
+    "langMoreAria": "Más idiomas"
   },
   "status": {
     "loading": "Cargando datos de redes…",

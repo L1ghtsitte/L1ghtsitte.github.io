@@ -59,7 +59,9 @@
     "copyCoinBtn": "Copy",
     "carouselPrevAria": "Scroll back",
     "carouselNextAria": "Scroll forward",
-    "navHow": "How it works"
+    "navHow": "How it works",
+    "langAria": "Interface language",
+    "langMoreAria": "More languages"
   },
   "status": {
     "loading": "Loading network data…",
