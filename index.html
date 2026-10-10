@@ -13,9 +13,12 @@
        ============================================================ -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Защита от eval-инъекций: свои файлы + шрифты Google + картинки data:/blob: + API https -->
+  <!-- Защита от eval-инъекций: свои файлы + шрифты Google + картинки data:/blob: + API https.
+       'unsafe-inline' в style-src разрешает только служебные CSS custom properties
+       (--delay, --mx/--my), которые JS ставит через element.style.setProperty.
+       Скрипты по-прежнему жёстко ограничены: script-src 'self' — никакого eval/inline-JS. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https:; form-action 'none'; base-uri 'self'; object-src 'none'">
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https:; form-action 'none'; base-uri 'self'; object-src 'none'">
   <meta name="description" data-i18n-attr="content:html.description"
         content="Crypto Pulse — приём крипто-донатов в 30+ сетях. Быстро, анонимно, без посредников.">
   <title data-i18n="html.title">CRYPTO PULSE // Донат-терминал</title>

@@ -138,6 +138,28 @@ const NOTIFY_API_URL = "https://api.mydomain.com/crypto-notify";
 /** Путь к данным кошельков (относительно корня сайта на GitHub Pages) */
 const ADDRESSES_URL = "crypto/addresses.json";
 
+/**
+ * Нормализатор записи из addresses.json → внутренняя модель сети.
+ * Поддерживает ОБА формата данных:
+ *   A) {"network": "TON", "logo": "/crypto/img/ton.png", "qr": ..., "address": ...}
+ *   B) {"code": "BCH", "name": "Bitcoin Cash", "img": "img/BCH.png", "qr": "qr/BCH.png", ...}
+ * Это страхует от рассинхрона схемы файла и её ожидания страницей.
+ */
+function normalizeNetwork(raw, i) {
+  const name = String(raw.network || raw.name || raw.code || `#${i + 1}`);
+  const logo = raw.logo || raw.img || raw.image || raw.icon || "";
+  const qr = raw.qr || raw.qrImage || raw.qr_image || "";
+  return {
+    id: i,
+    code: String(raw.code || "").toUpperCase(),
+    network: name,
+    address: String(raw.address || raw.wallet || ""),
+    logo: sitePath(logo),
+    qr: sitePath(qr),
+    tier: tierOf({ ...raw, network: name }),
+  };
+}
+
 /** Таймаут сетевого запроса к бэкенду, мс */
 const REQUEST_TIMEOUT_MS = 15000;
 
@@ -292,10 +314,47 @@ function toast(message, type = "info", duration = 3600) {
 
 /* ============================================================
    СТАТУС-БАР (загрузка / онлайн / ошибка)
+   textKey — ключ i18n; vars — подстановка {плейсхолдеров}
    ============================================================ */
-function setStatus(kind, textKey) {
+function setStatus(kind, textKey, vars) {
   els.statusDot.className = `status-dot status-dot--${kind}`;
-  els.statusText.textContent = i18n.t(textKey);
+  els.statusText.textContent = i18n.t(textKey, vars);
+}
+
+/** Актуальный текст статуса «ONLINE — загружено сетей: N» */
+function refreshOnlineStatus() {
+  setStatus("ok", "status.online", { count: fmtInt(state.networks.length) });
+}
+
+/**
+ * Безопасная загрузка и парсинг JSON.
+ * response.json() при битом файле бросает неинформативный SyntaxError —
+ * читаем текст, чистим типовые «помехи» (BOM, comments //, /* */, trailing comma)
+ * и показываем человекочитаемую ошибку с подсказкой.
+ */
+async function fetchJson(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  let text = await res.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (firstErr) {
+    // Попытка спасти файл: BOM в начале, комментарии, висячие запятые
+    const cleaned = text
+      .replace(/^\uFEFF/, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")          // /* ... */
+      .replace(/^\s*(\/\/|#)[^\n]*/gm, "")       // строки-комментарии // или #
+      .replace(/,\s*([}\]])/g, "$1");            // trailing commas
+    try {
+      const data = JSON.parse(cleaned);
+      console.warn(`[CryptoPulse] «${url}» содержал мусор — автоматически очищен. Почини файл.`);
+      return data;
+    } catch (_) {
+      const line = String(firstErr.message || "");
+      throw new SyntaxError(`JSON невалиден (${url}) ${line}. Проверь кавычки/запятые в файле.`);
+    }
+  }
 }
 
 /* ============================================================
@@ -308,25 +367,16 @@ async function loadNetworks() {
   renderSkeletons(6);
 
   try {
-    const res = await fetch(ADDRESSES_URL, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await fetchJson(ADDRESSES_URL);
 
     if (!Array.isArray(data) || data.length === 0) {
       throw new TypeError("bad data");
     }
 
-    state.networks = data.map((raw, i) => ({
-      id: i,
-      network: String(raw.network || raw.name || `#${i}`),
-      address: String(raw.address || raw.wallet || ""),
-      logo: sitePath(raw.logo || ""),
-      qr: sitePath(raw.qr || ""),
-      tier: tierOf(raw),
-    }));
+    state.networks = data.map(normalizeNetwork);
 
     state.loading = false;
-    setStatus("ok", "status.online");
+    setStatus("ok", "status.online", { count: fmtInt(state.networks.length) });
     els.statNetworks.textContent = "0";
     countUp(els.statNetworks, state.networks.length);
 
@@ -450,9 +500,8 @@ function renderAll() {
   const list = filteredNetworks();
   renderCards(list);
   renderDropdownItems(list);
-  els.resultCount.textContent = list.length === state.networks.length
-    ? `${fmtInt(list.length)} ${i18n.t("ui.networksUnit")}`
-    : i18n.t("ui.shownOf", { shown: fmtInt(list.length), total: fmtInt(state.networks.length) });
+  // Единый формат счётчика: «показано X из Y» (локализовано)
+  els.resultCount.textContent = i18n.t("ui.shownOf", { shown: fmtInt(list.length), total: fmtInt(state.networks.length) });
 }
 
 function renderCards(list) {
@@ -476,7 +525,8 @@ function renderCards(list) {
     tierEl.textContent = i18n.t(`ui.tier.${net.tier}`);
 
     node.querySelector(".card__name").textContent = coinOf(net.network);
-    node.querySelector(".card__code").textContent = net.network.toUpperCase().replace(coinOf(net.network), "").trim() || net.network.toUpperCase();
+    // Подпись под кодом монеты: сеть (USDT TRC20) или полный тикер, если кода нет
+    node.querySelector(".card__code").textContent = net.network.toUpperCase().replace(coinOf(net.network), "").trim() || net.code || "";
     node.querySelector(".card__select").textContent = i18n.t("ui.select");
 
     if (state.selected && state.selected.id === net.id) node.classList.add("is-selected");
@@ -729,13 +779,13 @@ function openModal() {
   els.modalTitle.textContent = state.selected.network;
   els.modalCoin.textContent = coinOf(state.selected.network);
   els.modal.hidden = false;
-  document.documentElement.classList.add("no-scroll");
+  syncScrollLock();
   els.modalClose.focus();
 }
 function closeModal() {
   if (els.modal.hidden) return;
   els.modal.hidden = true;
-  document.documentElement.classList.remove("no-scroll");
+  syncScrollLock();
 }
 
 els.qrFrame.addEventListener("click", openModal);
@@ -807,7 +857,9 @@ function setLoading(on) {
 const THEME_KEY = "cp-theme";
 
 /* Скролл страницы блокируется, когда открыта модалка (класс на <html>) */
-document.documentElement.classList.toggle("no-scroll", !els.modal.hidden);
+function syncScrollLock() {
+  document.documentElement.classList.toggle("no-scroll", !els.modal.hidden);
+}
 
 function applyTheme(theme, animate = false) {
   if (animate) document.body.classList.add("cp-theme-anim");
@@ -877,7 +929,7 @@ i18n.onChange(() => {
     els.payQr.alt = `${i18n.t("html.qrAltPrefix")} ${state.selected.network}`;
     els.dropdownLabel.innerHTML = `${esc(coinOf(state.selected.network))} <span class="dropdown__label-code">${esc(state.selected.network)}</span>`;
   }
-  setStatus(state.loadError ? "error" : "ok", state.loadError ? "errors.checkConnection" : "status.online");
+  setStatus(state.loadError ? "error" : "ok", state.loadError ? "errors.checkConnection" : "status.online", { count: fmtInt(state.networks.length) });
 });
 
 /* ============================================================

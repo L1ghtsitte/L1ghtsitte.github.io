@@ -84,6 +84,9 @@
 
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 20px); }
 
+/* Блокировка прокрутки страницы при открытой модалке QR (класс ставит JS) */
+html.no-scroll, html.no-scroll body { overflow: hidden; }
+
 body {
   font-family: var(--font-body);
   background: var(--bg);
@@ -329,10 +332,15 @@ input, textarea { font: inherit; }
 }
 .card.is-visible { opacity: 1; transform: none; transition-delay: var(--delay, 0ms); }
 
-/* Glow-подсветка карточки следует за курсором (--mx/--my ставит JS) */
-.card__glow { position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity var(--transition); pointer-events: none;
-  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(0,245,212,.16), transparent 65%); }
+/* Glow-подсветка карточки следует за курсором.
+   --mx/--my ставит JS через style.setProperty — это единственный
+   «inline-стиль» на странице, поэтому в CSP разрешён 'unsafe-inline'
+   именно для style-src (script-src остаётся жёстким: только 'self'). */
+.card__glow { position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity var(--transition); pointer-events: none; }
 .card:hover .card__glow { opacity: 1; }
+@supports (background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), red, transparent)) {
+  .card__glow { background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(0,245,212,.16), transparent 65%); }
+}
 
 .card:hover { transform: translateY(-6px); border-color: var(--border-glow); box-shadow: var(--shadow-lg), var(--glow-cyan); }
 .card:focus-visible { outline: none; border-color: var(--cyan); box-shadow: var(--glow-cyan); }
