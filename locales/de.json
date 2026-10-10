@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "lang": "de",
+    "name": "Deutsch",
+    "flag": "🇩🇪"
+  },
+  "html": {
+    "title": "CRYPTO PULSE // Spenden-Terminal",
+    "description": "Crypto Pulse — Krypto-Spenden in über 80 Netzwerken. Schnell, anonym, ohne Zwischenhändler.",
+    "navNetworks": "Netzwerke",
+    "navPayment": "Zahlung",
+    "navContacts": "Kontakt",
+    "navAria": "Sectionsnavigation",
+    "themeToggleAria": "Helles Theme umschalten",
+    "heroTag": "// DONATION TERMINAL v2.0",
+    "heroTitle": "SUPPORT THE FUTURE",
+    "heroSubtitleLine1": "Wähle ein Netzwerk, scanne den QR-Code und sende deine Spende.",
+    "heroSubtitleLine2a": "80+ Blockchains.",
+    "heroSubtitleLine2b": "Keine Servicegebühren. Volle Freiheit.",
+    "sectionNetworks": "NETZWERK WÄHLEN",
+    "searchPlaceholder": "Netzwerk suchen… (BTC, ETH, TON…)",
+    "searchAria": "Kryptowährungs-Netzwerk suchen",
+    "chipsAria": "Nach Netzwerktyp filtern",
+    "dropdownPlaceholder": "— Netzwerk auswählen —",
+    "dropdownAria": "Liste der verfügbaren Netzwerke",
+    "networksAria": "Krypto-Netzwerkkarten",
+    "cardsGridAria": "Krypto-Netzwerkkarten",
+    "cardSelectAria": "Netzwerk auswählen",
+    "cardLogoAlt": "Logo",
+    "sectionPayment": "ZAHLUNGSINFO",
+    "placeholderText": "Wähle zuerst oben ein Netzwerk — hier erscheinen QR-Code und Wallet-Adresse.",
+    "qrAltPrefix": "QR-Code für eine Überweisung an",
+    "addressLabel": "WALLET-ADRESSE",
+    "addressAria": "Wallet-Adresse des gewählten Netzwerks",
+    "copyBtn": "Adresse kopieren",
+    "copiedBtn": "✓ Kopiert!",
+    "amountLabel": "BETRAG",
+    "commentLabel": "KOMMENTAR",
+    "optional": "(optional)",
+    "commentPlaceholder": "Zum Beispiel: Danke für das Projekt!",
+    "submitBtn": "Ich habe bezahlt / Benachrichtigen ⚡",
+    "sendingBtn": "Senden…",
+    "footerMain": "CRYPTO PULSE © {year} — im Sinne der Dezentralisierung.",
+    "footerHint": "Sende niemals Gelder an ungeprüfte Adressen. Prüfe immer die ersten und letzten Zeichen."
+  },
+  "status": {
+    "loading": "Netzwerkdaten werden geladen…",
+    "online": "ONLINE — geladene Netzwerke: {count}",
+    "offline": "OFFLINE — Fehler beim Laden der Daten"
+  },
+  "toast": {
+    "listUpdated": "Netzwerkliste aktualisiert ({count})",
+    "networkSelected": "Netzwerk {name} ausgewählt",
+    "noAddress": "Für Netzwerk {name} ist keine Adresse konfiguriert",
+    "copied": "Adresse in die Zwischenablage kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen — Adresse manuell markieren (Strg+C)",
+    "sent": "Benachrichtigung gesendet — danke für deine Spende! ⚡",
+    "sendTimeout": "Server antwortet nicht (Timeout). Versuche es später erneut",
+    "sendFailed": "Benachrichtigung konnte nicht gesendet werden: {message}"
+  },
+  "errors": {
+    "timeout": "Zeitüberschreitung der Serverantwort",
+    "loadFailed": "Netzwerkliste konnte nicht geladen werden",
+    "badData": "addresses.json enthält keine gültigen Daten",
+    "checkConnection": ". Prüfe deine Verbindung und lade die Seite neu",
+    "retry": "↻ Laden wiederholen",
+    "empty": "Nichts gefunden. Versuche eine andere Suche.",
+    "positiveAmount": "Der Betrag muss eine positive Zahl sein",
+    "selectFirst": "Wähle zuerst ein Netzwerk",
+    "serverStatus": "Server antwortete mit {code}",
+    "untitled": "Ohne Namen"
+  },
+  "ui": {
+    "all": "ALLE",
+    "shownOf": "{shown} von {total} angezeigt",
+    "tier": {
+      "core": "CORE",
+      "evm": "EVM",
+      "l1": "L1",
+      "privacy": "PRIVACY",
+      "meme": "MEME"
+    }
+  }
+}

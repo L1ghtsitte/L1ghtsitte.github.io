@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "lang": "zh",
+    "name": "中文",
+    "flag": "🇨🇳"
+  },
+  "html": {
+    "title": "CRYPTO PULSE // 捐赠终端",
+    "description": "Crypto Pulse — 支持 80+ 条链的加密货币捐赠。快速、匿名、无需中介。",
+    "navNetworks": "网络",
+    "navPayment": "支付",
+    "navContacts": "联系",
+    "navAria": "区块导航",
+    "themeToggleAria": "切换浅色主题",
+    "heroTag": "// DONATION TERMINAL v2.0",
+    "heroTitle": "SUPPORT THE FUTURE",
+    "heroSubtitleLine1": "选择网络，扫描二维码，发送您的捐赠。",
+    "heroSubtitleLine2a": "80+ 条区块链。",
+    "heroSubtitleLine2b": "零服务费，完全自由。",
+    "sectionNetworks": "选择网络",
+    "searchPlaceholder": "搜索网络…（BTC、ETH、TON…）",
+    "searchAria": "搜索加密货币网络",
+    "chipsAria": "按网络类型筛选",
+    "dropdownPlaceholder": "— 请选择网络 —",
+    "dropdownAria": "可用网络列表",
+    "networksAria": "加密货币网络卡片",
+    "cardsGridAria": "加密货币网络卡片",
+    "cardSelectAria": "选择网络",
+    "cardLogoAlt": "标志",
+    "sectionPayment": "收款信息",
+    "placeholderText": "请先在上方选择网络——二维码和钱包地址将显示在这里。",
+    "qrAltPrefix": "转账二维码：",
+    "addressLabel": "钱包地址",
+    "addressAria": "所选网络的钱包地址",
+    "copyBtn": "复制地址",
+    "copiedBtn": "✓ 已复制！",
+    "amountLabel": "金额",
+    "commentLabel": "留言",
+    "optional": "（可选）",
+    "commentPlaceholder": "例如：感谢这个项目！",
+    "submitBtn": "我已付款 / 通知 ⚡",
+    "sendingBtn": "发送中…",
+    "footerMain": "CRYPTO PULSE © {year} — 为去中心化而生。",
+    "footerHint": "切勿向未经核实的地址汇款。请务必核对地址的首尾字符。"
+  },
+  "status": {
+    "loading": "正在加载网络数据…",
+    "online": "在线 — 已加载网络数：{count}",
+    "offline": "离线 — 数据加载错误"
+  },
+  "toast": {
+    "listUpdated": "网络列表已更新（{count}）",
+    "networkSelected": "已选择网络 {name}",
+    "noAddress": "网络 {name} 尚未配置地址",
+    "copied": "地址已复制到剪贴板",
+    "copyFailed": "复制失败——请手动选择地址（Ctrl+C）",
+    "sent": "通知已发送——感谢您的捐赠！⚡",
+    "sendTimeout": "服务器无响应（超时）。请稍后再试",
+    "sendFailed": "发送通知失败：{message}"
+  },
+  "errors": {
+    "timeout": "服务器响应超时",
+    "loadFailed": "无法加载网络列表",
+    "badData": "addresses.json 中没有有效数据",
+    "checkConnection": "。请检查网络连接并刷新页面",
+    "retry": "↻ 重新加载",
+    "empty": "未找到结果。请尝试其他关键词。",
+    "positiveAmount": "金额必须为正数",
+    "selectFirst": "请先选择网络",
+    "serverStatus": "服务器返回 {code}",
+    "untitled": "未命名"
+  },
+  "ui": {
+    "all": "全部",
+    "shownOf": "显示 {shown} / {total}",
+    "tier": {
+      "core": "CORE",
+      "evm": "EVM",
+      "l1": "L1",
+      "privacy": "PRIVACY",
+      "meme": "MEME"
+    }
+  }
+}

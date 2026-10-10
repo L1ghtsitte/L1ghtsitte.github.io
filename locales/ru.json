@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "lang": "ru",
+    "name": "Русский",
+    "flag": "🇷🇺"
+  },
+  "html": {
+    "title": "CRYPTO PULSE // Донат-терминал",
+    "description": "Crypto Pulse — приём крипто-донатов в 80+ сетях. Быстро, анонимно, без посредников.",
+    "navNetworks": "Сети",
+    "navPayment": "Оплата",
+    "navContacts": "Контакты",
+    "navAria": "Навигация по секциям",
+    "themeToggleAria": "Переключить светлую тему",
+    "heroTag": "// DONATION TERMINAL v2.0",
+    "heroTitle": "SUPPORT THE FUTURE",
+    "heroSubtitleLine1": "Выбери сеть, отсканируй QR, переведи донат.",
+    "heroSubtitleLine2a": "80+ блокчейнов.",
+    "heroSubtitleLine2b": "Ноль комиссий сервиса. Полная свобода.",
+    "sectionNetworks": "ВЫБЕРИ СЕТЬ",
+    "searchPlaceholder": "Поиск сети… (BTC, ETH, TON…)",
+    "searchAria": "Поиск криптовалютной сети",
+    "chipsAria": "Фильтр по типу сетей",
+    "dropdownPlaceholder": "— выберите сеть —",
+    "dropdownAria": "Список доступных сетей",
+    "networksAria": "Карточки криптовалютных сетей",
+    "cardsGridAria": "Карточки криптовалютных сетей",
+    "cardSelectAria": "Выбрать сеть",
+    "cardLogoAlt": "Логотип",
+    "sectionPayment": "РЕКВИЗИТЫ",
+    "placeholderText": "Сначала выбери сеть выше — здесь появятся QR-код и адрес кошелька.",
+    "qrAltPrefix": "QR-код для перевода в сеть",
+    "addressLabel": "АДРЕС КОШЕЛЬКА",
+    "addressAria": "Адрес кошелька выбранной сети",
+    "copyBtn": "Копировать адрес",
+    "copiedBtn": "✓ Скопировано!",
+    "amountLabel": "СУММА",
+    "commentLabel": "КОММЕНТАРИЙ",
+    "optional": "(опционально)",
+    "commentPlaceholder": "Например: спасибо за проект!",
+    "submitBtn": "Я оплатил / Уведомить ⚡",
+    "sendingBtn": "Отправка…",
+    "footerMain": "CRYPTO PULSE © {year} — сделано во имя децентрализации.",
+    "footerHint": "Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы."
+  },
+  "status": {
+    "loading": "Загрузка данных сетей…",
+    "online": "ONLINE — загружено сетей: {count}",
+    "offline": "OFFLINE — ошибка загрузки данных"
+  },
+  "toast": {
+    "listUpdated": "Список сетей обновлён ({count})",
+    "networkSelected": "Сеть {name} выбрана",
+    "noAddress": "Для сети {name} адрес не настроен",
+    "copied": "Адрес скопирован в буфер обмена",
+    "copyFailed": "Не удалось скопировать — выдели адрес вручную (Ctrl+C)",
+    "sent": "Уведомление отправлено — спасибо за донат! ⚡",
+    "sendTimeout": "Сервер не отвечает (таймаут). Попробуй ещё раз позже",
+    "sendFailed": "Не удалось отправить уведомление: {message}"
+  },
+  "errors": {
+    "timeout": "Превышено время ожидания ответа сервера",
+    "loadFailed": "Не удалось загрузить список сетей",
+    "badData": "В файле addresses.json нет корректных данных",
+    "checkConnection": ". Проверь соединение и обнови страницу",
+    "retry": "↻ Повторить загрузку",
+    "empty": "Ничего не найдено. Попробуй другой запрос.",
+    "positiveAmount": "Сумма должна быть положительным числом",
+    "selectFirst": "Сначала выбери сеть для доната",
+    "serverStatus": "Сервер ответил {code}",
+    "untitled": "Без названия"
+  },
+  "ui": {
+    "all": "ВСЕ",
+    "shownOf": "показано {shown} из {total}",
+    "tier": { "core": "CORE", "evm": "EVM", "l1": "L1", "privacy": "PRIVACY", "meme": "MEME" }
+  }
+}

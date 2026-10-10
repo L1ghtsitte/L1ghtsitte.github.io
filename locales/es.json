@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "lang": "es",
+    "name": "Español",
+    "flag": "🇪🇸"
+  },
+  "html": {
+    "title": "CRYPTO PULSE // Terminal de donaciones",
+    "description": "Crypto Pulse — acepta donaciones cripto en más de 80 redes. Rápido, anónimo, sin intermediarios.",
+    "navNetworks": "Redes",
+    "navPayment": "Pago",
+    "navContacts": "Contactos",
+    "navAria": "Navegación por secciones",
+    "themeToggleAria": "Cambiar a tema claro",
+    "heroTag": "// DONATION TERMINAL v2.0",
+    "heroTitle": "SUPPORT THE FUTURE",
+    "heroSubtitleLine1": "Elige una red, escanea el QR y envía tu donación.",
+    "heroSubtitleLine2a": "Más de 80 blockchains.",
+    "heroSubtitleLine2b": "Cero comisiones de servicio. Libertad total.",
+    "sectionNetworks": "ELIGE UNA RED",
+    "searchPlaceholder": "Buscar red… (BTC, ETH, TON…)",
+    "searchAria": "Buscar red de criptomonedas",
+    "chipsAria": "Filtrar por tipo de red",
+    "dropdownPlaceholder": "— selecciona una red —",
+    "dropdownAria": "Lista de redes disponibles",
+    "networksAria": "Tarjetas de redes cripto",
+    "cardsGridAria": "Tarjetas de redes cripto",
+    "cardSelectAria": "Seleccionar red",
+    "cardLogoAlt": "Logotipo",
+    "sectionPayment": "DATOS DE PAGO",
+    "placeholderText": "Primero elige una red arriba — aquí aparecerán el código QR y la dirección de la billetera.",
+    "qrAltPrefix": "Código QR para transferir a",
+    "addressLabel": "DIRECCIÓN DE BILLETERA",
+    "addressAria": "Dirección de billetera de la red seleccionada",
+    "copyBtn": "Copiar dirección",
+    "copiedBtn": "✓ ¡Copiado!",
+    "amountLabel": "IMPORTE",
+    "commentLabel": "COMENTARIO",
+    "optional": "(opcional)",
+    "commentPlaceholder": "Por ejemplo: ¡gracias por el proyecto!",
+    "submitBtn": "Ya pagué / Notificar ⚡",
+    "sendingBtn": "Enviando…",
+    "footerMain": "CRYPTO PULSE © {year} — hecho en nombre de la descentralización.",
+    "footerHint": "Nunca envíes fondos a direcciones no verificadas. Comprueba siempre los primeros y últimos caracteres."
+  },
+  "status": {
+    "loading": "Cargando datos de redes…",
+    "online": "EN LÍNEA — redes cargadas: {count}",
+    "offline": "SIN CONEXIÓN — error al cargar datos"
+  },
+  "toast": {
+    "listUpdated": "Lista de redes actualizada ({count})",
+    "networkSelected": "Red {name} seleccionada",
+    "noAddress": "No hay dirección configurada para la red {name}",
+    "copied": "Dirección copiada al portapapeles",
+    "copyFailed": "No se pudo copiar — selecciona la dirección manualmente (Ctrl+C)",
+    "sent": "Notificación enviada — ¡gracias por tu donación! ⚡",
+    "sendTimeout": "El servidor no responde (tiempo de espera agotado). Inténtalo más tarde",
+    "sendFailed": "Error al enviar la notificación: {message}"
+  },
+  "errors": {
+    "timeout": "Tiempo de espera del servidor agotado",
+    "loadFailed": "No se pudo cargar la lista de redes",
+    "badData": "addresses.json no contiene datos válidos",
+    "checkConnection": ". Comprueba tu conexión y recarga la página",
+    "retry": "↻ Reintentar carga",
+    "empty": "No se encontró nada. Prueba otra búsqueda.",
+    "positiveAmount": "El importe debe ser un número positivo",
+    "selectFirst": "Primero selecciona una red",
+    "serverStatus": "El servidor respondió con {code}",
+    "untitled": "Sin nombre"
+  },
+  "ui": {
+    "all": "TODO",
+    "shownOf": "mostrando {shown} de {total}",
+    "tier": {
+      "core": "CORE",
+      "evm": "EVM",
+      "l1": "L1",
+      "privacy": "PRIVACY",
+      "meme": "MEME"
+    }
+  }
+}

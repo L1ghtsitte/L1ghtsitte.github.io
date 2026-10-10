@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "lang": "ja",
+    "name": "日本語",
+    "flag": "🇯🇵"
+  },
+  "html": {
+    "title": "CRYPTO PULSE // ドネーションターミナル",
+    "description": "Crypto Pulse — 80以上のネットワークで暗号資産の寄付を受付。迅速・匿名・仲介者なし。",
+    "navNetworks": "ネットワーク",
+    "navPayment": "支払い",
+    "navContacts": "連絡先",
+    "navAria": "セクションナビゲーション",
+    "themeToggleAria": "ライトテーマに切替",
+    "heroTag": "// DONATION TERMINAL v2.0",
+    "heroTitle": "SUPPORT THE FUTURE",
+    "heroSubtitleLine1": "ネットワークを選び、QRをスキャンして、寄付を送金。",
+    "heroSubtitleLine2a": "80以上のブロックチェーン。",
+    "heroSubtitleLine2b": "サービス手数料ゼロ。完全な自由。",
+    "sectionNetworks": "ネットワークを選択",
+    "searchPlaceholder": "ネットワーク検索…（BTC、ETH、TON…）",
+    "searchAria": "暗号資産ネットワークを検索",
+    "chipsAria": "タイプ別に絞り込み",
+    "dropdownPlaceholder": "— ネットワークを選択 —",
+    "dropdownAria": "利用可能なネットワーク一覧",
+    "networksAria": "暗号資産ネットワークのカード",
+    "cardsGridAria": "暗号資産ネットワークのカード",
+    "cardSelectAria": "ネットワークを選択",
+    "cardLogoAlt": "ロゴ",
+    "sectionPayment": "支払い情報",
+    "placeholderText": "まず上でネットワークを選択してください — QRコードとウォレットアドレスがここに表示されます。",
+    "qrAltPrefix": "送金用QRコード：",
+    "addressLabel": "ウォレットアドレス",
+    "addressAria": "選択したネットワークのウォレットアドレス",
+    "copyBtn": "アドレスをコピー",
+    "copiedBtn": "✓ コピーしました！",
+    "amountLabel": "金額",
+    "commentLabel": "コメント",
+    "optional": "（任意）",
+    "commentPlaceholder": "例：プロジェクトへの感謝！",
+    "submitBtn": "支払った / 通知する ⚡",
+    "sendingBtn": "送信中…",
+    "footerMain": "CRYPTO PULSE © {year} — 分散化のために。",
+    "footerHint": "未検証のアドレスへは送金しないでください。冒頭と末尾の文字を必ず確認しましょう。"
+  },
+  "status": {
+    "loading": "ネットワークデータ読み込み中…",
+    "online": "オンライン — 読込済みネットワーク数：{count}",
+    "offline": "オフライン — データ読み込みエラー"
+  },
+  "toast": {
+    "listUpdated": "ネットワーク一覧を更新しました（{count}）",
+    "networkSelected": "{name} を選択しました",
+    "noAddress": "{name} のアドレスが設定されていません",
+    "copied": "アドレスをクリップボードにコピーしました",
+    "copyFailed": "コピーできませんでした — 手動でアドレスを選択してコピー（Ctrl+C）",
+    "sent": "通知を送信しました — ありがとうございます！⚡",
+    "sendTimeout": "サーバーが無応答です（タイムアウト）。後でもう一度お試しください",
+    "sendFailed": "通知の送信に失敗：{message}"
+  },
+  "errors": {
+    "timeout": "サーバーの応答がタイムアウトしました",
+    "loadFailed": "ネットワーク一覧の読み込みに失敗",
+    "badData": "addresses.json に有効なデータがありません",
+    "checkConnection": "。接続を確認してページを再読み込みしてください",
+    "retry": "↻ 再読み込み",
+    "empty": "見つかりませんでした。別のキーワードをお試しください。",
+    "positiveAmount": "金額は正の数で入力してください",
+    "selectFirst": "先にネットワークを選択してください",
+    "serverStatus": "サーバーが {code} で応答",
+    "untitled": "名称未設定"
+  },
+  "ui": {
+    "all": "すべて",
+    "shownOf": "{total} 件中 {shown} 件を表示",
+    "tier": {
+      "core": "CORE",
+      "evm": "EVM",
+      "l1": "L1",
+      "privacy": "PRIVACY",
+      "meme": "MEME"
+    }
+  }
+}

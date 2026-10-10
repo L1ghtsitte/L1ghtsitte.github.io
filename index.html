@@ -6,8 +6,8 @@
        ============================================================ -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Crypto Pulse — приём крипто-донатов в 80+ сетях. Быстро, анонимно, без посредников.">
-  <title>CRYPTO PULSE // Донат-терминал</title>
+  <meta name="description" data-i18n-attr="content:description" content="Crypto Pulse — приём крипто-донатов в 80+ сетях. Быстро, анонимно, без посредников.">
+  <title data-i18n="html.title">CRYPTO PULSE // Донат-терминал</title>
 
   <!-- Шрифты: Orbitron — техно-заголовки, JetBrains Mono — адреса/код, Inter — текст -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +25,10 @@
   <div class="bg-glow bg-glow--cyan" aria-hidden="true"></div>   <!-- циановое свечение -->
   <div class="bg-glow bg-glow--indigo" aria-hidden="true"></div> <!-- индиго-свечение -->
   <div class="bg-scanline" aria-hidden="true"></div>              <!-- скан-линия CRT -->
+  <div class="bg-noise" aria-hidden="true"></div>                 <!-- плёночное зерно -->
+  <div class="bg-particles" aria-hidden="true">                   <!-- парящие частицы -->
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
   <span class="bg-hex bg-hex--1" aria-hidden="true"></span>      <!-- геометрические шестиугольники -->
   <span class="bg-hex bg-hex--2" aria-hidden="true"></span>
   <span class="bg-hex bg-hex--3" aria-hidden="true"></span>
@@ -37,12 +41,23 @@
       <span class="logo__mark" aria-hidden="true">&#x25C6;</span>
       CRYPTO<span class="logo__accent">PULSE</span>
     </div>
-    <nav class="site-nav" aria-label="Навигация по секциям">
-      <a href="#networks">Сети</a>
-      <a href="#payment">Оплата</a>
-      <a href="#footer">Контакты</a>
+    <nav class="site-nav" aria-label="Навигация по секциям" data-i18n-attr="aria-label:html.navAria">
+      <a href="#networks" data-i18n="html.navNetworks">Сети</a>
+      <a href="#payment" data-i18n="html.navPayment">Оплата</a>
+      <a href="#footer" data-i18n="html.navContacts">Контакты</a>
     </nav>
-    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить светлую тему">
+
+    <!-- Переключатель языка: 🇷🇺 RU / 🇺🇸 EN / 🇨🇳 中文 / 🇯🇵 日本語 / 🇪🇸 ES / 🇩🇪 DE -->
+    <div class="lang-switch" id="langSwitch" role="group" aria-label="Язык интерфейса">
+      <button class="lang-btn is-active" type="button" data-lang="ru"  title="Русский">🇷🇺<span>RU</span></button>
+      <button class="lang-btn" type="button" data-lang="en"  title="English">🇺🇸<span>EN</span></button>
+      <button class="lang-btn" type="button" data-lang="zh"  title="中文">🇨🇳<span>中</span></button>
+      <button class="lang-btn" type="button" data-lang="ja"  title="日本語">🇯🇵<span>日</span></button>
+      <button class="lang-btn" type="button" data-lang="es"  title="Español">🇪🇸<span>ES</span></button>
+      <button class="lang-btn" type="button" data-lang="de"  title="Deutsch">🇩🇪<span>DE</span></button>
+    </div>
+
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить светлую тему" data-i18n-attr="aria-label:html.themeToggleAria">
       <span class="theme-toggle__dot" aria-hidden="true"></span>
     </button>
   </header>
@@ -53,15 +68,17 @@
          HERO — заголовок + статус подключения к сети
      ========================================================== -->
     <section class="hero">
-      <p class="hero__tag">// DONATION TERMINAL v2.0</p>
-      <h1 class="hero__title glitch" data-text="SUPPORT THE FUTURE">SUPPORT THE FUTURE</h1>
+      <p class="hero__tag" data-i18n="html.heroTag">// DONATION TERMINAL v2.0</p>
+      <h1 class="hero__title glitch" id="heroTitle" data-text="SUPPORT THE FUTURE" data-i18n="html.heroTitle">SUPPORT THE FUTURE</h1>
       <p class="hero__subtitle">
-        Выбери сеть, отсканируй QR, переведи донат.<br>
-        <span class="accent">80+ блокчейнов.</span> Ноль комиссий сервиса. Полная свобода.
+        <span data-i18n="html.heroSubtitleLine1">Выбери сеть, отсканируй QR, переведи донат.</span><br>
+        <span class="accent" data-i18n="html.heroSubtitleLine2a">80+ блокчейнов.</span> <span data-i18n="html.heroSubtitleLine2b">Ноль комиссий сервиса. Полная свобода.</span>
       </p>
       <div class="status-line">
         <span id="statusDot" class="status-dot status-dot--loading" aria-hidden="true"></span>
-        <span id="statusText" class="status-text">Загрузка данных сетей…</span>
+        <span id="statusText" class="status-text" data-i18n="status.loading">Загрузка данных сетей…</span>
+        <span class="status-sep" aria-hidden="true"></span>
+        <span id="clockTicker" class="status-clock" aria-hidden="true">--:--:--</span>
       </div>
     </section>
 
@@ -69,44 +86,50 @@
          СЕКЦИЯ «СЕТИ» — поиск + выпадающий список + сетка карточек
      ========================================================== -->
     <section id="networks" class="section">
-      <h2 class="section__title"><span class="hash">#</span>ВЫБЕРИ СЕТЬ</h2>
+      <h2 class="section__title"><span class="hash">#</span><span data-i18n="html.sectionNetworks">ВЫБЕРИ СЕТЬ</span></h2>
 
-      <!-- Живой поиск по названию/коду сети -->
-      <input
-        type="text"
-        id="searchInput"
-        class="search"
-        placeholder="&#x2315;&nbsp; Поиск сети… (BTC, ETH, TON…)"
-        autocomplete="off"
-        aria-label="Поиск криптовалютной сети"
-      >
+      <!-- Живой поиск по названию/коду сети (хоткей — клавиша "/") -->
+      <div class="search-wrap">
+        <input
+          type="text"
+          id="searchInput"
+          class="search"
+          placeholder="Поиск сети… (BTC, ETH, TON…)"
+          autocomplete="off"
+          spellcheck="false"
+          data-i18n-attr="placeholder:html.searchPlaceholder;aria-label:html.searchAria" aria-label="Поиск криптовалютной сети"
+        >
+        <kbd class="search-hint" aria-hidden="true">/</kbd>
+      </div>
+
+      <!-- Чипы-фильтры по типам сетей (строятся из JSON) + счётчик -->
+      <div class="chips-row">
+        <div class="tier-chips" id="tierChips" role="group" aria-label="Фильтр по типу сетей" data-i18n-attr="aria-label:html.chipsAria"></div>
+        <span class="result-count" id="resultCount" aria-live="polite"></span>
+      </div>
 
       <!-- Кастомный стильный выпадающий список (combobox) -->
       <div class="dropdown" id="networkDropdown">
         <button class="dropdown__toggle" id="dropdownToggle" type="button"
                 aria-haspopup="listbox" aria-expanded="false">
-          <span class="dropdown__label" id="dropdownLabel">— выберите сеть —</span>
+          <span class="dropdown__label" id="dropdownLabel" data-i18n="html.dropdownPlaceholder">— выберите сеть —</span>
           <span class="dropdown__arrow" aria-hidden="true">&#x25BE;</span>
         </button>
         <ul class="dropdown__menu" id="dropdownMenu" role="listbox" tabindex="-1"
-            aria-label="Список доступных сетей"></ul>
+            data-i18n-attr="aria-label:html.dropdownAria" aria-label="Список доступных сетей"></ul>
       </div>
 
       <!-- Сетка карточек сетей -->
-      <div class="cards-grid" id="cardsGrid" aria-label="Карточки криптовалютных сетей">
+      <div class="cards-grid" id="cardsGrid" aria-label="Карточки криптовалютных сетей" data-i18n-attr="aria-label:html.cardsGridAria">
         <!-- JS-шаблон карточки (используется как образец при рендере) -->
         <template id="cardTemplate">
           <article class="card" tabindex="0" role="button">
             <div class="card__corner card__corner--tl" aria-hidden="true"></div>
             <div class="card__corner card__corner--br" aria-hidden="true"></div>
-            <img class="card__logo" src="" alt="" loading="lazy"
-                 onerror="this.style.visibility='hidden'">
+            <img class="card__logo" src="" alt="" loading="lazy">
             <h3 class="card__name"></h3>
             <span class="card__code"></span>
-<<<<<<< HEAD
             <span class="card__tier" aria-hidden="true"></span>
-=======
->>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
           </article>
         </template>
 
@@ -122,12 +145,12 @@
          СЕКЦИЯ «ОПЛАТА» — QR, адрес, копирование, форма уведомления
      ========================================================== -->
     <section id="payment" class="section payment" aria-live="polite">
-      <h2 class="section__title"><span class="hash">#</span>РЕКВИЗИТЫ</h2>
+      <h2 class="section__title"><span class="hash">#</span><span data-i18n="html.sectionPayment">РЕКВИЗИТЫ</span></h2>
 
       <!-- Плейсхолдер, пока сеть не выбрана -->
       <div class="payment__placeholder" id="paymentPlaceholder">
         <span class="payment__placeholder-icon" aria-hidden="true">&#x29D6;</span>
-        Сначала выбери сеть выше — здесь появятся QR-код и адрес кошелька.
+        <span data-i18n="html.placeholderText">Сначала выбери сеть выше — здесь появятся QR-код и адрес кошелька.</span>
       </div>
 
       <!-- Основной блок оплаты (скрыт до выбора сети) -->
@@ -144,15 +167,15 @@
               </div>
             </div>
             <div class="qr-frame">
-              <img id="payQr" class="qr-frame__img" src="" alt="QR-код для перевода" loading="lazy">
+              <img id="payQr" class="qr-frame__img" src="" alt="QR-код для перевода" loading="lazy" data-i18n-attr="alt:html.qrAltPrefix">
             </div>
           </div>
 
           <!-- Правая колонка: адрес + форма -->
           <div class="pay-panel__data">
-            <label class="field-label" for="addressBox">АДРЕС КОШЕЛЬКА</label>
+            <label class="field-label" for="addressBox" data-i18n="html.addressLabel">АДРЕС КОШЕЛЬКА</label>
             <textarea id="addressBox" class="address-box" readonly rows="3"
-                      aria-label="Адрес кошелька выбранной сети"></textarea>
+                      data-i18n-attr="aria-label:html.addressAria" aria-label="Адрес кошелька выбранной сети"></textarea>
 
             <button id="copyBtn" class="btn btn--copy" type="button">
               <svg class="btn__icon" viewBox="0 0 24 24" width="16" height="16" fill="none"
@@ -160,7 +183,7 @@
                 <rect x="9" y="9" width="12" height="12" rx="2"></rect>
                 <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
               </svg>
-              <span id="copyBtnText">Копировать адрес</span>
+              <span id="copyBtnText" data-i18n="html.copyBtn">Копировать адрес</span>
             </button>
 
             <hr class="divider" aria-hidden="true">
@@ -169,19 +192,19 @@
             <form id="notifyForm" class="notify-form" novalidate>
               <div class="notify-form__row">
                 <div class="field">
-                  <label class="field-label" for="amountInput">СУММА <span class="optional">(опционально)</span></label>
+                  <label class="field-label" for="amountInput"><span data-i18n="html.amountLabel">СУММА</span> <span class="optional" data-i18n="html.optional">(опционально)</span></label>
                   <input type="number" id="amountInput" class="input" name="amount"
                          min="0" step="any" inputmode="decimal" placeholder="0.00" autocomplete="off">
                 </div>
                 <div class="field field--grow">
-                  <label class="field-label" for="commentInput">КОММЕНТАРИЙ <span class="optional">(опционально)</span></label>
+                  <label class="field-label" for="commentInput"><span data-i18n="html.commentLabel">КОММЕНТАРИЙ</span> <span class="optional" data-i18n="html.optional">(опционально)</span></label>
                   <input type="text" id="commentInput" class="input" name="comment"
-                         maxlength="200" placeholder="Например: спасибо за проект!" autocomplete="off">
+                         maxlength="200" placeholder="Например: спасибо за проект!" data-i18n-attr="placeholder:html.commentPlaceholder" autocomplete="off">
                 </div>
               </div>
 
               <button type="submit" class="btn btn--submit" id="submitBtn">
-                <span class="btn__label">Я оплатил / Уведомить &#x26A1;</span>
+                <span class="btn__label" id="submitLabel" data-i18n="html.submitBtn">Я оплатил / Уведомить &#x26A1;</span>
                 <span class="btn__spinner" aria-hidden="true"></span>
               </button>
             </form>
@@ -195,13 +218,13 @@
        ПОДВАЛ
        ============================================================ -->
   <footer id="footer" class="site-footer">
-    <p>CRYPTO PULSE &copy; <span id="year"></span> — сделано во имя децентрализации.</p>
-    <p class="site-footer__hint">Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы.</p>
+    <p data-i18n="html.footerMain">CRYPTO PULSE &copy; <span id="year"></span> — сделано во имя децентрализации.</p>
+    <p class="site-footer__hint" data-i18n="html.footerHint">Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы.</p>
   </footer>
 
   <!-- Контейнер toast-уведомлений (стильные всплывающие сообщения) -->
   <div id="toastContainer" class="toasts" aria-live="assertive" aria-atomic="true"></div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "lang": "en",
+    "name": "English",
+    "flag": "🇺🇸"
+  },
+  "html": {
+    "title": "CRYPTO PULSE // Donation Terminal",
+    "description": "Crypto Pulse — accept crypto donations in 80+ networks. Fast, anonymous, no intermediaries.",
+    "navNetworks": "Networks",
+    "navPayment": "Payment",
+    "navContacts": "Contacts",
+    "navAria": "Section navigation",
+    "themeToggleAria": "Toggle light theme",
+    "heroTag": "// DONATION TERMINAL v2.0",
+    "heroTitle": "SUPPORT THE FUTURE",
+    "heroSubtitleLine1": "Pick a network, scan the QR, send your donation.",
+    "heroSubtitleLine2a": "80+ blockchains.",
+    "heroSubtitleLine2b": "Zero service fees. Total freedom.",
+    "sectionNetworks": "PICK A NETWORK",
+    "searchPlaceholder": "Search network… (BTC, ETH, TON…)",
+    "searchAria": "Search cryptocurrency network",
+    "chipsAria": "Filter by network type",
+    "dropdownPlaceholder": "— select a network —",
+    "dropdownAria": "List of available networks",
+    "networksAria": "List of cryptocurrency networks",
+    "cardsGridAria": "Cryptocurrency network cards",
+    "cardSelectAria": "Select network",
+    "cardLogoAlt": "Logo",
+    "sectionPayment": "PAYMENT DETAILS",
+    "placeholderText": "First pick a network above — the QR code and wallet address will appear here.",
+    "qrAltPrefix": "QR code for a transfer to",
+    "addressLabel": "WALLET ADDRESS",
+    "addressAria": "Wallet address of the selected network",
+    "copyBtn": "Copy address",
+    "copiedBtn": "✓ Copied!",
+    "amountLabel": "AMOUNT",
+    "commentLabel": "COMMENT",
+    "optional": "(optional)",
+    "commentPlaceholder": "For example: thanks for the project!",
+    "submitBtn": "I paid / Notify ⚡",
+    "sendingBtn": "Sending…",
+    "footerMain": "CRYPTO PULSE © {year} — built for the sake of decentralization.",
+    "footerHint": "Never send funds to unverified addresses. Always check the first and last characters."
+  },
+  "status": {
+    "loading": "Loading network data…",
+    "online": "ONLINE — networks loaded: {count}",
+    "offline": "OFFLINE — data loading error"
+  },
+  "toast": {
+    "listUpdated": "Network list updated ({count})",
+    "networkSelected": "Network {name} selected",
+    "noAddress": "No address configured for network {name}",
+    "copied": "Address copied to clipboard",
+    "copyFailed": "Couldn't copy — select the address manually (Ctrl+C)",
+    "sent": "Notification sent — thanks for the donation! ⚡",
+    "sendTimeout": "Server not responding (timeout). Try again later",
+    "sendFailed": "Failed to send notification: {message}"
+  },
+  "errors": {
+    "timeout": "Server response timed out",
+    "loadFailed": "Failed to load the network list",
+    "badData": "addresses.json contains no valid data",
+    "checkConnection": ". Check your connection and refresh the page",
+    "retry": "↻ Retry loading",
+    "empty": "Nothing found. Try a different query.",
+    "positiveAmount": "Amount must be a positive number",
+    "selectFirst": "Select a network first",
+    "serverStatus": "Server responded with {code}",
+    "untitled": "Untitled"
+  },
+  "ui": {
+    "all": "ALL",
+    "shownOf": "showing {shown} of {total}",
+    "tier": { "core": "CORE", "evm": "EVM", "l1": "L1", "privacy": "PRIVACY", "meme": "MEME" }
+  }
+}
