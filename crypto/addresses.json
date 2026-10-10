@@ -1,0 +1,964 @@
+[
+  {
+<<<<<<< HEAD
+    "id": 14,
+    "code": "BCH",
+    "name": "Bitcoin Cash",
+    "address": "qrhqaa7zg8lxwru49js3f3gusllfhn0hsqueavu4y6",
+    "qr": "qr/BCH.png",
+    "img": "img/BCH.png",
+    "tier": "core"
+  },
+  {
+    "id": 65,
+    "code": "SEI",
+    "name": "Sei",
+    "address": "sei1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacnczgmy7",
+    "qr": "qr/SEI.png",
+    "img": "img/SEI.png",
+    "tier": "l1"
+  },
+  {
+    "id": 27,
+    "code": "DOGE",
+    "name": "Dogecoin",
+    "address": "DH5KeBKPQSYmnpnjoZD3XU3KXwiLpdz1k7",
+    "qr": "qr/DOGE.png",
+    "img": "img/DOGE.png",
+    "tier": "meme"
+  },
+  {
+    "id": 13,
+    "code": "BTC",
+    "name": "Bitcoin",
+    "address": "bc1qp4wx0ghxd2vj7cyl50uthsljm6v0n0zqw589vl",
+    "qr": "qr/BTC.png",
+    "img": "img/BTC.png",
+    "tier": "core"
+  },
+  {
+    "id": 56,
+    "code": "OSMO",
+    "name": "Osmosis",
+    "address": "osmo1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacna42a5d",
+    "qr": "qr/OSMO.png",
+    "img": "img/OSMO.png",
+    "tier": "l1"
+  },
+  {
+    "id": 76,
+    "code": "TON",
+    "name": "TON",
+    "address": "UQD39ZOT4jjn9YmI9yMe1CoeK_TZ9yXbqZ52_RMhOOSYEunA",
+    "qr": "qr/TON.png",
+    "img": "img/TON.png",
+    "tier": "l1"
+  },
+  {
+    "id": 39,
+    "code": "KAIA",
+    "name": "Kaia",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/KAIA.png",
+    "img": "img/KAIA.png",
+    "tier": "evm"
+  },
+  {
+    "id": 59,
+    "code": "POL",
+    "name": "Polygon",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/POL.png",
+    "img": "img/POL.png",
+    "tier": "evm"
+  },
+  {
+    "id": 77,
+    "code": "TRX",
+    "name": "Tron",
+    "address": "TT8dxWM9xuMbjJBkSMjhJtuyqUXmyHxHg9",
+    "qr": "qr/TRX.png",
+    "img": "img/TRX.png",
+    "tier": "l1"
+  },
+  {
+    "id": 44,
+    "code": "LTC",
+    "name": "Litecoin",
+    "address": "ltc1qvvkq0n5gry4m7rgunj6z2g8xsszc890u5q7np6",
+    "qr": "qr/LTC.png",
+    "img": "img/LTC.png",
+    "tier": "core"
+  },
+  {
+    "id": 49,
+    "code": "NEAR",
+    "name": "NEAR",
+    "address": "1c7ae4eea232410fdbd4e1eb119d533159b023478e2a69568978d2502483144e",
+    "qr": "qr/NEAR.png",
+    "img": "img/NEAR.png",
+    "tier": "l1"
+  },
+  {
+    "id": 16,
+    "code": "BNB",
+    "name": "BNB Beacon Chain",
+    "address": "bnb193t5y72a99fv6u3s94gvkthxslq222d8vj82zp",
+    "qr": "qr/BNB.png",
+    "img": "img/BNB.png",
+    "tier": "l1"
+  },
+  {
+    "id": 37,
+    "code": "ICP",
+    "name": "Internet Computer",
+    "address": "ec0358c6a6a209d2b88613f48842c385043e15102768212f4c1b9d762c07b365",
+    "qr": "qr/ICP.png",
+    "img": "img/ICP.png",
+    "tier": "l1"
+  },
+  {
+    "id": 81,
+    "code": "XRP",
+    "name": "XRP",
+    "address": "rJB5LpuTCdGFT5ezT7s8peH7t7yuTjVTZ5",
+    "qr": "qr/XRP.png",
+    "img": "img/XRP.png",
+    "tier": "l1"
+  },
+  {
+    "id": 12,
+    "code": "BASE",
+    "name": "Base",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/BASE.png",
+    "img": "img/BASE.png",
+    "tier": "evm"
+  },
+  {
+    "id": 68,
+    "code": "SOL",
+    "name": "Solana",
+    "address": "FQMsZvGv1kijcbqTCUskyXm6Ca51T8QiTdC8PcSV92Cn",
+    "qr": "qr/SOL.png",
+    "img": "img/SOL.png",
+    "tier": "l1"
+  },
+  {
+    "id": 69,
+    "code": "XLM",
+    "name": "Stellar",
+    "address": "GCKJGELV4ULO2JOCUUEQICOUC47KL2FYD677EZZBFPMCC76CHBSH23ET",
+    "qr": "qr/XLM.png",
+    "img": "img/XLM.png",
+    "tier": "l1"
+  },
+  {
+    "id": 20,
+    "code": "ADA",
+    "name": "Cardano",
+    "address": "addr1q96rkztxpme85agzpvm647ewzh88m3ly6v35vpjvt6255z960md74xpa7sp5qk9e4wevwx8vnvywvm28xul6jx28sd3q9ccm4k",
+    "qr": "qr/ADA.png",
+    "img": "img/ADA.png",
+    "tier": "l1"
+  },
+  {
+    "id": 82,
+    "code": "ZEC",
+    "name": "Zcash",
+    "address": "t1eVDLfvi5mQAiNVasi5AjZBBDpopKfF2ZF",
+    "qr": "qr/ZEC.png",
+    "img": "img/ZEC.png",
+    "tier": "privacy"
+  },
+  {
+    "id": 10,
+    "code": "AVAX",
+    "name": "Avalanche C-Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/AVAX.png",
+    "img": "img/AVAX.png",
+    "tier": "evm"
+  },
+  {
+    "id": 7,
+    "code": "APT",
+    "name": "Aptos",
+    "address": "0xab4cb033a6e2bd10d256fe97e703610fa9588d87670515a517bda6489c20a327",
+    "qr": "qr/APT.png",
+    "img": "img/APT.png",
+    "tier": "l1"
+  },
+  {
+    "id": 53,
+    "code": "OP",
+    "name": "OP Mainnet",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/OP.png",
+    "img": "img/OP.png",
+    "tier": "evm"
+  },
+  {
+    "id": 58,
+    "code": "DOT",
+    "name": "Polkadot",
+    "address": "14dEjr6vh8nNEmjHhf7BDAgRr65PEL2Ha47Lb7SQxqpMZnZv",
+    "qr": "qr/DOT.png",
+    "img": "img/DOT.png",
+    "tier": "l1"
+  },
+  {
+    "id": 22,
+    "code": "ATOM",
+    "name": "Cosmos Hub",
+    "address": "cosmos1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacn4wedzl",
+    "qr": "qr/ATOM.png",
+    "img": "img/ATOM.png",
+    "tier": "l1"
+=======
+    "id": 1,
+    "code": "ACA",
+    "name": "Acala",
+    "address": "21QaYGUnmVwbXVkXpDYpDyfmLL8mtynRA77cKsPiHpZgkdRG",
+    "qr": "qr/ACA.png",
+    "img": "img/ACA.png"
+  },
+  {
+    "id": 2,
+    "code": "ACA-EVM",
+    "name": "Acala EVM",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ACA-EVM.png",
+    "img": "img/ACA-EVM.png"
+  },
+  {
+    "id": 3,
+    "code": "AE",
+    "name": "Aeternity",
+    "address": "ak_27TwdYapQVzikP3s8jj1aGnGAxyZEHL4qiqXYQEaiFibQf1kmS",
+    "qr": "qr/AE.png",
+    "img": "img/AE.png"
+  },
+  {
+    "id": 4,
+    "code": "AION",
+    "name": "Aion",
+    "address": "0xa099846653fa021abf1c046449fb34b8e028a134fcdc46772d718ca2a4783fcf",
+    "qr": "qr/AION.png",
+    "img": "img/AION.png"
+  },
+  {
+    "id": 5,
+    "code": "AKT",
+    "name": "Akash",
+    "address": "akash1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacnc452m9",
+    "qr": "qr/AKT.png",
+    "img": "img/AKT.png"
+>>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
+  },
+  {
+    "id": 6,
+    "code": "ALGO",
+    "name": "Algorand",
+    "address": "DD5OABAJCA5MSCGTCUBMSOVAMUH3X6H63RHFTWFXDHKQYM4YKWK3XXLVGE",
+    "qr": "qr/ALGO.png",
+<<<<<<< HEAD
+    "img": "img/ALGO.png",
+    "tier": "l1"
+  },
+  {
+    "id": 70,
+    "code": "SUI",
+    "name": "Sui",
+    "address": "0x00ae546f788a3c2a12878afb7effb82197c5193c6eb0bc7948f0cf233917cb99",
+    "qr": "qr/SUI.png",
+    "img": "img/SUI.png",
+    "tier": "l1"
+  },
+  {
+    "id": 25,
+    "code": "DASH",
+    "name": "Dash",
+    "address": "Xs65mZZeh3tXiydJM4zLfjMH7keKkwXRut",
+    "qr": "qr/DASH.png",
+    "img": "img/DASH.png",
+    "tier": "privacy"
+  },
+  {
+    "id": 28,
+    "code": "ETH",
+    "name": "Ethereum",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ETH.png",
+    "img": "img/ETH.png",
+    "tier": "evm"
+  },
+  {
+    "id": 18,
+    "code": "BSC",
+    "name": "BNB Smart Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/BSC.png",
+    "img": "img/BSC.png",
+    "tier": "evm"
+  },
+  {
+    "id": 50,
+    "code": "INJ",
+    "name": "Native Injective",
+    "address": "inj1fas06dmka68rfwd930f2zssdy9sslj5wzlv9dl",
+    "qr": "qr/INJ.png",
+    "img": "img/INJ.png",
+    "tier": "l1"
+=======
+    "img": "img/ALGO.png"
+  },
+  {
+    "id": 7,
+    "code": "APT",
+    "name": "Aptos",
+    "address": "0xab4cb033a6e2bd10d256fe97e703610fa9588d87670515a517bda6489c20a327",
+    "qr": "qr/APT.png",
+    "img": "img/APT.png"
+  },
+  {
+    "id": 8,
+    "code": "ARC",
+    "name": "Arc",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ARC.png",
+    "img": "img/ARC.png"
+>>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
+  },
+  {
+    "id": 9,
+    "code": "ARB",
+    "name": "Arbitrum",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ARB.png",
+<<<<<<< HEAD
+    "img": "img/ARB.png",
+    "tier": "evm"
+  }
+]
+=======
+    "img": "img/ARB.png"
+  },
+  {
+    "id": 10,
+    "code": "AVAX",
+    "name": "Avalanche C-Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/AVAX.png",
+    "img": "img/AVAX.png"
+  },
+  {
+    "id": 11,
+    "code": "AXL",
+    "name": "Axelar",
+    "address": "axelar1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacn3q09f7",
+    "qr": "qr/AXL.png",
+    "img": "img/AXL.png"
+  },
+  {
+    "id": 12,
+    "code": "BASE",
+    "name": "Base",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/BASE.png",
+    "img": "img/BASE.png"
+  },
+  {
+    "id": 13,
+    "code": "BTC",
+    "name": "Bitcoin",
+    "address": "bc1qp4wx0ghxd2vj7cyl50uthsljm6v0n0zqw589vl",
+    "qr": "qr/BTC.png",
+    "img": "img/BTC.png"
+  },
+  {
+    "id": 14,
+    "code": "BCH",
+    "name": "Bitcoin Cash",
+    "address": "qrhqaa7zg8lxwru49js3f3gusllfhn0hsqueavu4y6",
+    "qr": "qr/BCH.png",
+    "img": "img/BCH.png"
+  },
+  {
+    "id": 15,
+    "code": "BLAST",
+    "name": "Blast",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/BLAST.png",
+    "img": "img/BLAST.png"
+  },
+  {
+    "id": 16,
+    "code": "BNB",
+    "name": "BNB Beacon Chain",
+    "address": "bnb193t5y72a99fv6u3s94gvkthxslq222d8vj82zp",
+    "qr": "qr/BNB.png",
+    "img": "img/BNB.png"
+  },
+  {
+    "id": 17,
+    "code": "BNB-GREENFIELD",
+    "name": "BNB Greenfield",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/BNB-GREENFIELD.png",
+    "img": "img/BNB-GREENFIELD.png"
+  },
+  {
+    "id": 18,
+    "code": "BSC",
+    "name": "BNB Smart Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/BSC.png",
+    "img": "img/BSC.png"
+  },
+  {
+    "id": 19,
+    "code": "CLO",
+    "name": "Callisto",
+    "address": "0xA083478885854F0EeC07b6488E789f31771C68dC",
+    "qr": "qr/CLO.png",
+    "img": "img/CLO.png"
+  },
+  {
+    "id": 20,
+    "code": "ADA",
+    "name": "Cardano",
+    "address": "addr1q96rkztxpme85agzpvm647ewzh88m3ly6v35vpjvt6255z960md74xpa7sp5qk9e4wevwx8vnvywvm28xul6jx28sd3q9ccm4k",
+    "qr": "qr/ADA.png",
+    "img": "img/ADA.png"
+  },
+  {
+    "id": 21,
+    "code": "CELO",
+    "name": "Celo",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/CELO.png",
+    "img": "img/CELO.png"
+  },
+  {
+    "id": 22,
+    "code": "ATOM",
+    "name": "Cosmos Hub",
+    "address": "cosmos1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacn4wedzl",
+    "qr": "qr/ATOM.png",
+    "img": "img/ATOM.png"
+  },
+  {
+    "id": 23,
+    "code": "CRO",
+    "name": "Cronos Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/CRO.png",
+    "img": "img/CRO.png"
+  },
+  {
+    "id": 24,
+    "code": "CRO-ORG",
+    "name": "Crypto.org",
+    "address": "cro1pafk525lg3v9dsvvvdt6crmnm0qtmd38dwchx8",
+    "qr": "qr/CRO-ORG.png",
+    "img": "img/CRO-ORG.png"
+  },
+  {
+    "id": 25,
+    "code": "DASH",
+    "name": "Dash",
+    "address": "Xs65mZZeh3tXiydJM4zLfjMH7keKkwXRut",
+    "qr": "qr/DASH.png",
+    "img": "img/DASH.png"
+  },
+  {
+    "id": 26,
+    "code": "DGB",
+    "name": "DigiByte",
+    "address": "dgb1qzmqfnelz6djhw75cs2uwe0ht2yjs6w49shhlv2",
+    "qr": "qr/DGB.png",
+    "img": "img/DGB.png"
+  },
+  {
+    "id": 27,
+    "code": "DOGE",
+    "name": "Dogecoin",
+    "address": "DH5KeBKPQSYmnpnjoZD3XU3KXwiLpdz1k7",
+    "qr": "qr/DOGE.png",
+    "img": "img/DOGE.png"
+  },
+  {
+    "id": 28,
+    "code": "ETH",
+    "name": "Ethereum",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ETH.png",
+    "img": "img/ETH.png"
+  },
+  {
+    "id": 29,
+    "code": "ETC",
+    "name": "Ethereum Classic",
+    "address": "0xE063b47E9bfA919EdCba03f7BFf93cCdC229bDD8",
+    "qr": "qr/ETC.png",
+    "img": "img/ETC.png"
+  },
+  {
+    "id": 30,
+    "code": "FTM",
+    "name": "Fantom",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/FTM.png",
+    "img": "img/FTM.png"
+  },
+  {
+    "id": 31,
+    "code": "FIL",
+    "name": "Filecoin",
+    "address": "f142bznvgjhvywelktjbflioftrjavxaxgsft7waq",
+    "qr": "qr/FIL.png",
+    "img": "img/FIL.png"
+  },
+  {
+    "id": 32,
+    "code": "GNO",
+    "name": "Gnosis Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/GNO.png",
+    "img": "img/GNO.png"
+  },
+  {
+    "id": 33,
+    "code": "GRS",
+    "name": "Groestlcoin",
+    "address": "grs1qva8xefy4q86jne7fvph8xg3qwjz6yce7e4vswl",
+    "qr": "qr/GRS.png",
+    "img": "img/GRS.png"
+  },
+  {
+    "id": 34,
+    "code": "ONE",
+    "name": "Harmony",
+    "address": "one192u4j5lfhc38vwfarax2cfaycfdgazpafxdn0q",
+    "qr": "qr/ONE.png",
+    "img": "img/ONE.png"
+  },
+  {
+    "id": 35,
+    "code": "HYPER",
+    "name": "HyperEVM",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/HYPER.png",
+    "img": "img/HYPER.png"
+  },
+  {
+    "id": 36,
+    "code": "ICX",
+    "name": "ICON",
+    "address": "hx3964a54de37d0deca71d8f9253809e13c7912d27",
+    "qr": "qr/ICX.png",
+    "img": "img/ICX.png"
+  },
+  {
+    "id": 37,
+    "code": "ICP",
+    "name": "Internet Computer",
+    "address": "ec0358c6a6a209d2b88613f48842c385043e15102768212f4c1b9d762c07b365",
+    "qr": "qr/ICP.png",
+    "img": "img/ICP.png"
+  },
+  {
+    "id": 38,
+    "code": "JUNO",
+    "name": "Juno",
+    "address": "juno1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacnru6k9r",
+    "qr": "qr/JUNO.png",
+    "img": "img/JUNO.png"
+  },
+  {
+    "id": 39,
+    "code": "KAIA",
+    "name": "Kaia",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/KAIA.png",
+    "img": "img/KAIA.png"
+  },
+  {
+    "id": 40,
+    "code": "KAVA",
+    "name": "Kava",
+    "address": "kava1eqqfv9w47y8wdddmtxqx3hvndl2dlm0trvfxcy",
+    "qr": "qr/KAVA.png",
+    "img": "img/KAVA.png"
+  },
+  {
+    "id": 41,
+    "code": "KAVA-EVM",
+    "name": "KavaEvm",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/KAVA-EVM.png",
+    "img": "img/KAVA-EVM.png"
+  },
+  {
+    "id": 42,
+    "code": "KSM",
+    "name": "Kusama",
+    "address": "CtkUaq6FCj5482e2dQ1VtLF4mMsdvjXWRAJF8EwupCbjwgK",
+    "qr": "qr/KSM.png",
+    "img": "img/KSM.png"
+  },
+  {
+    "id": 43,
+    "code": "LINEA",
+    "name": "Linea",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/LINEA.png",
+    "img": "img/LINEA.png"
+  },
+  {
+    "id": 44,
+    "code": "LTC",
+    "name": "Litecoin",
+    "address": "ltc1qvvkq0n5gry4m7rgunj6z2g8xsszc890u5q7np6",
+    "qr": "qr/LTC.png",
+    "img": "img/LTC.png"
+  },
+  {
+    "id": 45,
+    "code": "MNT",
+    "name": "Mantle",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/MNT.png",
+    "img": "img/MNT.png"
+  },
+  {
+    "id": 46,
+    "code": "METH",
+    "name": "MegaETH",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/METH.png",
+    "img": "img/METH.png"
+  },
+  {
+    "id": 47,
+    "code": "METIS",
+    "name": "Metis",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/METIS.png",
+    "img": "img/METIS.png"
+  },
+  {
+    "id": 48,
+    "code": "MON",
+    "name": "Monad",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/MON.png",
+    "img": "img/MON.png"
+  },
+  {
+    "id": 49,
+    "code": "NEAR",
+    "name": "NEAR",
+    "address": "1c7ae4eea232410fdbd4e1eb119d533159b023478e2a69568978d2502483144e",
+    "qr": "qr/NEAR.png",
+    "img": "img/NEAR.png"
+  },
+  {
+    "id": 50,
+    "code": "INJ",
+    "name": "Native Injective",
+    "address": "inj1fas06dmka68rfwd930f2zssdy9sslj5wzlv9dl",
+    "qr": "qr/INJ.png",
+    "img": "img/INJ.png"
+  },
+  {
+    "id": 51,
+    "code": "ZETA",
+    "name": "NativeZetaChain",
+    "address": "zeta1fas06dmka68rfwd930f2zssdy9sslj5w7j459h",
+    "qr": "qr/ZETA.png",
+    "img": "img/ZETA.png"
+  },
+  {
+    "id": 52,
+    "code": "NTRN",
+    "name": "Neutron",
+    "address": "neutron1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacn33s0cc",
+    "qr": "qr/NTRN.png",
+    "img": "img/NTRN.png"
+  },
+  {
+    "id": 53,
+    "code": "OP",
+    "name": "OP Mainnet",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/OP.png",
+    "img": "img/OP.png"
+  },
+  {
+    "id": 54,
+    "code": "OPBNB",
+    "name": "OpBNB",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/OPBNB.png",
+    "img": "img/OPBNB.png"
+  },
+  {
+    "id": 55,
+    "code": "ONT",
+    "name": "Ontology",
+    "address": "AQcFXSQrkmvtRW6NxySH7r1kyqa99YSzo9",
+    "qr": "qr/ONT.png",
+    "img": "img/ONT.png"
+  },
+  {
+    "id": 56,
+    "code": "OSMO",
+    "name": "Osmosis",
+    "address": "osmo1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacna42a5d",
+    "qr": "qr/OSMO.png",
+    "img": "img/OSMO.png"
+  },
+  {
+    "id": 57,
+    "code": "PLASMA",
+    "name": "Plasma Mainnet",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/PLASMA.png",
+    "img": "img/PLASMA.png"
+  },
+  {
+    "id": 58,
+    "code": "DOT",
+    "name": "Polkadot",
+    "address": "14dEjr6vh8nNEmjHhf7BDAgRr65PEL2Ha47Lb7SQxqpMZnZv",
+    "qr": "qr/DOT.png",
+    "img": "img/DOT.png"
+  },
+  {
+    "id": 59,
+    "code": "POL",
+    "name": "Polygon",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/POL.png",
+    "img": "img/POL.png"
+  },
+  {
+    "id": 60,
+    "code": "QTUM",
+    "name": "Qtum",
+    "address": "QV1rbjhE3PXDeUAf6vRh16ptrYBY7tJi3B",
+    "qr": "qr/QTUM.png",
+    "img": "img/QTUM.png"
+  },
+  {
+    "id": 61,
+    "code": "RVN",
+    "name": "Ravencoin",
+    "address": "RFeDuQauU9nodwVzwVVBQHmGRtDHZL3B1p",
+    "qr": "qr/RVN.png",
+    "img": "img/RVN.png"
+  },
+  {
+    "id": 62,
+    "code": "RHC",
+    "name": "Robinhood Chain",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/RHC.png",
+    "img": "img/RHC.png"
+  },
+  {
+    "id": 63,
+    "code": "RON",
+    "name": "Ronin",
+    "address": "ronin:4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/RON.png",
+    "img": "img/RON.png"
+  },
+  {
+    "id": 64,
+    "code": "SCR",
+    "name": "Scroll",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/SCR.png",
+    "img": "img/SCR.png"
+  },
+  {
+    "id": 65,
+    "code": "SEI",
+    "name": "Sei",
+    "address": "sei1fvv5cf5ge5f7fd9mqms8r5rkxzj5nacnczgmy7",
+    "qr": "qr/SEI.png",
+    "img": "img/SEI.png"
+  },
+  {
+    "id": 66,
+    "code": "SEI-EVM",
+    "name": "Sei EVM",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/SEI-EVM.png",
+    "img": "img/SEI-EVM.png"
+  },
+  {
+    "id": 67,
+    "code": "S",
+    "name": "Sonic",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/S.png",
+    "img": "img/S.png"
+  },
+  {
+    "id": 68,
+    "code": "SOL",
+    "name": "Solana",
+    "address": "FQMsZvGv1kijcbqTCUskyXm6Ca51T8QiTdC8PcSV92Cn",
+    "qr": "qr/SOL.png",
+    "img": "img/SOL.png"
+  },
+  {
+    "id": 69,
+    "code": "XLM",
+    "name": "Stellar",
+    "address": "GCKJGELV4ULO2JOCUUEQICOUC47KL2FYD677EZZBFPMCC76CHBSH23ET",
+    "qr": "qr/XLM.png",
+    "img": "img/XLM.png"
+  },
+  {
+    "id": 70,
+    "code": "SUI",
+    "name": "Sui",
+    "address": "0x00ae546f788a3c2a12878afb7effb82197c5193c6eb0bc7948f0cf233917cb99",
+    "qr": "qr/SUI.png",
+    "img": "img/SUI.png"
+  },
+  {
+    "id": 71,
+    "code": "RUNE",
+    "name": "THORChain",
+    "address": "thor1mesd09zwqhhmj8pnps70xysz2g32lldfpm5yk9",
+    "qr": "qr/RUNE.png",
+    "img": "img/RUNE.png"
+  },
+  {
+    "id": 72,
+    "code": "LUNC",
+    "name": "Terra Classic",
+    "address": "terra123t0gyt9tsrssgzzlqdjdxfyl7huespzfwenhj",
+    "qr": "qr/LUNC.png",
+    "img": "img/LUNC.png"
+  },
+  {
+    "id": 73,
+    "code": "XTZ",
+    "name": "Tezos",
+    "address": "tz1RfZmAhtLh7k7Fyhhw86NMwrQeVE3PWWfM",
+    "qr": "qr/XTZ.png",
+    "img": "img/XTZ.png"
+  },
+  {
+    "id": 74,
+    "code": "THETA",
+    "name": "Theta",
+    "address": "0x4381B9D3aF7C9B22c66FaE5e2F28071D3969FA7b",
+    "qr": "qr/THETA.png",
+    "img": "img/THETA.png"
+  },
+  {
+    "id": 75,
+    "code": "TT",
+    "name": "ThunderCore",
+    "address": "0xBD916d4f87b927ffD96a0b5b3Ac9fb721FAb57C9",
+    "qr": "qr/TT.png",
+    "img": "img/TT.png"
+  },
+  {
+    "id": 76,
+    "code": "TON",
+    "name": "TON",
+    "address": "UQD39ZOT4jjn9YmI9yMe1CoeK_TZ9yXbqZ52_RMhOOSYEunA",
+    "qr": "qr/TON.png",
+    "img": "img/TON.png"
+  },
+  {
+    "id": 77,
+    "code": "TRX",
+    "name": "Tron",
+    "address": "TT8dxWM9xuMbjJBkSMjhJtuyqUXmyHxHg9",
+    "qr": "qr/TRX.png",
+    "img": "img/TRX.png"
+  },
+  {
+    "id": 78,
+    "code": "VET",
+    "name": "VeChain",
+    "address": "0x360c092b995C1ae7dFC371B862Ba657ffb0f89d2",
+    "qr": "qr/VET.png",
+    "img": "img/VET.png"
+  },
+  {
+    "id": 79,
+    "code": "VIA",
+    "name": "Viacoin",
+    "address": "via1qyej4vwn4asj7ufmpmau0ad2cqemhvwtxyjznl0",
+    "qr": "qr/VIA.png",
+    "img": "img/VIA.png"
+  },
+  {
+    "id": 80,
+    "code": "WAVES",
+    "name": "Waves",
+    "address": "3PMs6JhEzByG3xA13e7VKFHBTh9wRnGdZz4",
+    "qr": "qr/WAVES.png",
+    "img": "img/WAVES.png"
+  },
+  {
+    "id": 81,
+    "code": "XRP",
+    "name": "XRP",
+    "address": "rJB5LpuTCdGFT5ezT7s8peH7t7yuTjVTZ5",
+    "qr": "qr/XRP.png",
+    "img": "img/XRP.png"
+  },
+  {
+    "id": 82,
+    "code": "ZEC",
+    "name": "Zcash",
+    "address": "t1eVDLfvi5mQAiNVasi5AjZBBDpopKfF2ZF",
+    "qr": "qr/ZEC.png",
+    "img": "img/ZEC.png"
+  },
+  {
+    "id": 83,
+    "code": "ZETA-EVM",
+    "name": "Zeta EVM",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ZETA-EVM.png",
+    "img": "img/ZETA-EVM.png"
+  },
+  {
+    "id": 84,
+    "code": "ZIL",
+    "name": "Zilliqa",
+    "address": "zil1q7meu0lr0ezk64f42jsdfez2083pp3ljm7a2gl",
+    "qr": "qr/ZIL.png",
+    "img": "img/ZIL.png"
+  },
+  {
+    "id": 85,
+    "code": "ZKLINK",
+    "name": "zkLink Nova Mainnet",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ZKLINK.png",
+    "img": "img/ZKLINK.png"
+  },
+  {
+    "id": 86,
+    "code": "ZKSYNC",
+    "name": "zkSync Era",
+    "address": "0x4f60Fd3776Ee8E34b9A58BD2a1420D21610fcA8E",
+    "qr": "qr/ZKSYNC.png",
+    "img": "img/ZKSYNC.png"
+  }
+]
+>>>>>>> 63f43d0742dca3c96b35d5d74933e2158c5854e5
