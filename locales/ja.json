@@ -41,7 +41,25 @@
     "submitBtn": "支払った / 通知する ⚡",
     "sendingBtn": "送信中…",
     "footerMain": "CRYPTO PULSE © {year} — 分散化のために。",
-    "footerHint": "未検証のアドレスへは送金しないでください。冒頭と末尾の文字を必ず確認しましょう。"
+    "footerHint": "未検証のアドレスへは送金しないでください。冒頭と末尾の文字を必ず確認しましょう。",
+    "heroTitleLine1": "未来を",
+    "heroTitleLine2": "支えよう",
+    "heroSubtitleLine2": "サービス手数料ゼロ。完全な自由。",
+    "ctaNetworks": "ネットワークを選択",
+    "ctaHow": "仕組み",
+    "sectionHow": "仕組み",
+    "howStep1Title": "ネットワークを選ぶ",
+    "howStep1Text": "80以上のチェーン：BTC、EVM、L1、プライバシー、ミーム——フィルターと検索で素早く見つかります。",
+    "howStep2Title": "QRをスキャン",
+    "howStep2Text": "QRコードをクリックして拡大し、ウォレットから寄付を送信します。",
+    "howStep3Title": "通知する",
+    "howStep3Text": "「支払った」を押すと、ボットが取引を受け取り感謝します。",
+    "qrZoomAria": "QRコードを拡大",
+    "qrHint": "クリックで拡大",
+    "copyCoinBtn": "コピー",
+    "carouselPrevAria": "左へスクロール",
+    "carouselNextAria": "右へスクロール",
+    "navHow": "仕組み"
   },
   "status": {
     "loading": "ネットワークデータ読み込み中…",
@@ -79,6 +97,12 @@
       "l1": "L1",
       "privacy": "PRIVACY",
       "meme": "MEME"
-    }
+    },
+    "statNetworks": "ネットワーク",
+    "statFees": "サービス手数料",
+    "statInstantNum": "∞",
+    "statInstant": "プライバシー",
+    "select": "選択",
+    "copyAddress": "アドレス"
   }
 }

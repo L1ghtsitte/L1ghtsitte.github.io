@@ -41,7 +41,25 @@
     "submitBtn": "Я оплатил / Уведомить ⚡",
     "sendingBtn": "Отправка…",
     "footerMain": "CRYPTO PULSE © {year} — сделано во имя децентрализации.",
-    "footerHint": "Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы."
+    "footerHint": "Не отправляй средства на непроверенные адреса. Всегда сверяй первые и последние символы.",
+    "heroTitleLine1": "Поддержи",
+    "heroTitleLine2": "будущее",
+    "heroSubtitleLine2": "Без комиссий сервиса. Полная свобода.",
+    "ctaNetworks": "Выбрать сеть",
+    "ctaHow": "Как это работает",
+    "sectionHow": "КАК ЭТО РАБОТАЕТ",
+    "howStep1Title": "Выбери сеть",
+    "howStep1Text": "80+ блокчейнов: BTC, EVM-сети, L1, privacy и meme — фильтры и поиск помогут найти нужную.",
+    "howStep2Title": "Отсканируй QR",
+    "howStep2Text": "Нажми на QR-код, чтобы увеличить его, и отправь донат со своего кошелька.",
+    "howStep3Title": "Уведомь нас",
+    "howStep3Text": "Нажми «Я оплатил» — бот получит транзакцию и поблагодарит тебя.",
+    "qrZoomAria": "Увеличить QR-код",
+    "qrHint": "нажми, чтобы увеличить",
+    "copyCoinBtn": "Скопировать",
+    "carouselPrevAria": "Прокрутить назад",
+    "carouselNextAria": "Прокрутить вперёд",
+    "navHow": "Как это работает"
   },
   "status": {
     "loading": "Загрузка данных сетей…",
@@ -73,6 +91,18 @@
   "ui": {
     "all": "ВСЕ",
     "shownOf": "показано {shown} из {total}",
-    "tier": { "core": "CORE", "evm": "EVM", "l1": "L1", "privacy": "PRIVACY", "meme": "MEME" }
+    "tier": {
+      "core": "CORE",
+      "evm": "EVM",
+      "l1": "L1",
+      "privacy": "PRIVACY",
+      "meme": "MEME"
+    },
+    "statNetworks": "сетей",
+    "statFees": "комиссия сервиса",
+    "statInstantNum": "∞",
+    "statInstant": "приватность",
+    "select": "выбрать",
+    "copyAddress": "адрес"
   }
 }

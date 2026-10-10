@@ -41,7 +41,25 @@
     "submitBtn": "Ya pagué / Notificar ⚡",
     "sendingBtn": "Enviando…",
     "footerMain": "CRYPTO PULSE © {year} — hecho en nombre de la descentralización.",
-    "footerHint": "Nunca envíes fondos a direcciones no verificadas. Comprueba siempre los primeros y últimos caracteres."
+    "footerHint": "Nunca envíes fondos a direcciones no verificadas. Comprueba siempre los primeros y últimos caracteres.",
+    "heroTitleLine1": "Apoya el",
+    "heroTitleLine2": "futuro",
+    "heroSubtitleLine2": "Sin comisiones de servicio. Libertad total.",
+    "ctaNetworks": "Elegir red",
+    "ctaHow": "Cómo funciona",
+    "sectionHow": "CÓMO FUNCIONA",
+    "howStep1Title": "Elige una red",
+    "howStep1Text": "Más de 80 blockchains: BTC, EVM, L1, privacidad y meme: los filtros y la búsqueda te ayudarán a encontrar la adecuada.",
+    "howStep2Title": "Escanea el QR",
+    "howStep2Text": "Haz clic en el código QR para ampliarlo y envía tu donación desde tu monedero.",
+    "howStep3Title": "Avísanos",
+    "howStep3Text": "Pulsa «He pagado»: el bot recibirá la transacción y te lo agradecerá.",
+    "qrZoomAria": "Ampliar código QR",
+    "qrHint": "clic para ampliar",
+    "copyCoinBtn": "Copiar",
+    "carouselPrevAria": "Desplazar a la izquierda",
+    "carouselNextAria": "Desplazar a la derecha",
+    "navHow": "Cómo funciona"
   },
   "status": {
     "loading": "Cargando datos de redes…",
@@ -79,6 +97,12 @@
       "l1": "L1",
       "privacy": "PRIVACY",
       "meme": "MEME"
-    }
+    },
+    "statNetworks": "redes",
+    "statFees": "tarifa de servicio",
+    "statInstantNum": "∞",
+    "statInstant": "privacidad",
+    "select": "elegir",
+    "copyAddress": "dirección"
   }
 }

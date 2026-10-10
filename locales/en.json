@@ -41,7 +41,25 @@
     "submitBtn": "I paid / Notify ⚡",
     "sendingBtn": "Sending…",
     "footerMain": "CRYPTO PULSE © {year} — built for the sake of decentralization.",
-    "footerHint": "Never send funds to unverified addresses. Always check the first and last characters."
+    "footerHint": "Never send funds to unverified addresses. Always check the first and last characters.",
+    "heroTitleLine1": "Support",
+    "heroTitleLine2": "the future",
+    "heroSubtitleLine2": "Zero service fees. Total freedom.",
+    "ctaNetworks": "Pick a network",
+    "ctaHow": "How it works",
+    "sectionHow": "HOW IT WORKS",
+    "howStep1Title": "Pick a network",
+    "howStep1Text": "80+ blockchains: BTC, EVM chains, L1, privacy and meme — filters and search will help you find the right one.",
+    "howStep2Title": "Scan the QR",
+    "howStep2Text": "Click the QR code to enlarge it and send your donation from your wallet.",
+    "howStep3Title": "Notify us",
+    "howStep3Text": "Press “I paid” — the bot receives the transaction and thanks you.",
+    "qrZoomAria": "Enlarge QR code",
+    "qrHint": "click to enlarge",
+    "copyCoinBtn": "Copy",
+    "carouselPrevAria": "Scroll back",
+    "carouselNextAria": "Scroll forward",
+    "navHow": "How it works"
   },
   "status": {
     "loading": "Loading network data…",
@@ -73,6 +91,18 @@
   "ui": {
     "all": "ALL",
     "shownOf": "showing {shown} of {total}",
-    "tier": { "core": "CORE", "evm": "EVM", "l1": "L1", "privacy": "PRIVACY", "meme": "MEME" }
+    "tier": {
+      "core": "CORE",
+      "evm": "EVM",
+      "l1": "L1",
+      "privacy": "PRIVACY",
+      "meme": "MEME"
+    },
+    "statNetworks": "networks",
+    "statFees": "service fee",
+    "statInstantNum": "∞",
+    "statInstant": "privacy",
+    "select": "select",
+    "copyAddress": "address"
   }
 }

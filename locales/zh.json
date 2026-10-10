@@ -41,7 +41,25 @@
     "submitBtn": "我已付款 / 通知 ⚡",
     "sendingBtn": "发送中…",
     "footerMain": "CRYPTO PULSE © {year} — 为去中心化而生。",
-    "footerHint": "切勿向未经核实的地址汇款。请务必核对地址的首尾字符。"
+    "footerHint": "切勿向未经核实的地址汇款。请务必核对地址的首尾字符。",
+    "heroTitleLine1": "支持",
+    "heroTitleLine2": "未来",
+    "heroSubtitleLine2": "零服务费，完全自由。",
+    "ctaNetworks": "选择网络",
+    "ctaHow": "运作方式",
+    "sectionHow": "运作方式",
+    "howStep1Title": "选择网络",
+    "howStep1Text": "80+ 条区块链：BTC、EVM、L1、隐私与 Meme——筛选和搜索帮你快速找到目标。",
+    "howStep2Title": "扫描 QR",
+    "howStep2Text": "点击二维码放大，从你的钱包发送捐赠。",
+    "howStep3Title": "通知我们",
+    "howStep3Text": "点击“我已付款”，机器人将收到交易并感谢你。",
+    "qrZoomAria": "放大二维码",
+    "qrHint": "点击放大",
+    "copyCoinBtn": "复制",
+    "carouselPrevAria": "向左滚动",
+    "carouselNextAria": "向右滚动",
+    "navHow": "运作方式"
   },
   "status": {
     "loading": "正在加载网络数据…",
@@ -79,6 +97,12 @@
       "l1": "L1",
       "privacy": "PRIVACY",
       "meme": "MEME"
-    }
+    },
+    "statNetworks": "条网络",
+    "statFees": "服务费",
+    "statInstantNum": "∞",
+    "statInstant": "隐私",
+    "select": "选择",
+    "copyAddress": "地址"
   }
 }
