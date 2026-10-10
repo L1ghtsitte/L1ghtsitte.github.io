@@ -17,7 +17,7 @@ const NOTIFY_API_URL = "https://api.mydomain.com/api/crypto-notify"; // путь
 /* Путь к данным с адресами. Файл лежит в папке /crypto рядом с index.html.
    ВНИМАНИЕ: в репозитории файл называется "adresses.json" (без буквы s),
    а не "addresses.json", как в ТЗ — путь ниже соответствует реальному файлу. */
-const DATA_URL = "crypto/adresses.json";
+const DATA_URL = "crypto/addresses.json";
 
 /* Таймаут запроса к бэкенду, мс */
 const REQUEST_TIMEOUT_MS = 15000;
